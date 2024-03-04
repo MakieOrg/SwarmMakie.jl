@@ -1,5 +1,5 @@
 using SwarmMakie
-using Documenter
+using Documenter, DocumenterVitepress
 
 DocMeta.setdocmeta!(SwarmMakie, :DocTestSetup, :(using SwarmMakie); recursive=true)
 
@@ -7,13 +7,12 @@ makedocs(;
     modules=[SwarmMakie],
     authors="Anshul Singhvi <anshulsinghvi@gmail.com>, Jacob Zelko <jacobszelko@gmail.com>, Michael Krabbe Borregaard <mkborregaard@snm.ku.dk>, and contributors",
     sitename="SwarmMakie.jl",
-    format=Documenter.HTML(;
-        canonical="https://asinghvi17.github.io/SwarmMakie.jl",
-        edit_link="main",
-        assets=String[],
+    format=DocumenterVitepress.MarkdownVitepress(;
+        repo="https://asinghvi17.github.io/SwarmMakie.jl",
+        devurl = "dev",
     ),
     pages=[
-        "Home" => "index.md",
+        "Introduction" => "introduction.md",
     ],
 )
 

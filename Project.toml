@@ -3,6 +3,10 @@ uuid = "0b1c068e-6a84-4e66-8136-5c95cafa83ed"
 authors = ["Anshul Singhvi <anshulsinghvi@gmail.com>", "Jacob Zelko <jacobszelko@gmail.com>", "Michael Krabbe Borregaard <mkborregaard@snm.ku.dk>", "and contributors"]
 version = "0.0.1-DEV"
 
+[deps]
+Makie = "ee78f7c6-11fb-53f2-987a-cfe4a2b5a57a"
+Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
+
 [compat]
 julia = "1.6"
 
