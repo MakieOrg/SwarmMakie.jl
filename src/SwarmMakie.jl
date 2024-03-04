@@ -1,5 +1,10 @@
+# # SwarmMakie.jl
+
 module SwarmMakie
 
-# Write your package code here.
+using Makie, Random
+
+include("recipe.jl")
+include("algorithms/simple.jl")
 
 end

@@ -1,16 +1,3 @@
-using Random: shuffle
-using Makie
-@recipe(Beeswarm, positions) do scene
-    return default_theme(scene, Scatter)
-end
-
-Makie.conversion_trait(::Type{<: Beeswarm}) = Makie.PointBased()
-
-function Makie.plot!(plot::Beeswarm)
-    positions = beeswarm.converted[1] # being PointBased, it should always receive a vector of Point2
-    markersize = beeswarm.markersize
-    
-end
 
 function beeswarm_coords(olda, side = :both)
 
@@ -40,10 +27,10 @@ function beeswarm_coords(olda, side = :both)
     end
 
     function potential_interactions(freeind)
-           outside_range(x) = abs(a[freeind]-a[x])>cellsize
-           lo_ind = findprev(outside_range, LinearIndices(a), freeind)
+           outside_range(x) = abs(a[freeind] - x) > cellsize
+           lo_ind = findprev(outside_range, a, freeind)
            lo = isnothing(lo_ind) ? 1 : lo_ind + 1
-           hi_ind = findnext(outside_range, LinearIndices(a), freeind)
+           hi_ind = findnext(outside_range, a, freeind)
            hi = isnothing(hi_ind) ? lastindex(a)-1 : hi_ind - 1
            if lo != 0 && hi != 0 && hi >= lo
                   included[freeind] ? (lo:hi)[.!(included[lo:hi])] : (lo:hi)[included[lo:hi]]
@@ -64,8 +51,10 @@ function beeswarm_coords(olda, side = :both)
     nearest_ypos = fill(NaN, length(a))
     while !isnothing(ind)
            included[ind] = true
-           ind = findfirst(v->v>a[ind] + cellsize, a)
+           ind = findfirst(v -> v > (a[ind] + cellsize), a)
     end
+
+    @show sum(included)
 
     # now fill the rest in turn
     update_ypos!(nearest_ypos, findall(.!(included)))
