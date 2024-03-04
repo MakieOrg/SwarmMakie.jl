@@ -8,7 +8,7 @@ makedocs(;
     authors="Anshul Singhvi <anshulsinghvi@gmail.com>, Jacob Zelko <jacobszelko@gmail.com>, Michael Krabbe Borregaard <mkborregaard@snm.ku.dk>, and contributors",
     sitename="SwarmMakie.jl",
     format=DocumenterVitepress.MarkdownVitepress(;
-        repo="https://asinghvi17.github.io/SwarmMakie.jl",
+        repo = "https://github.com/asinghvi17/SwarmMakie.jl",
         devurl = "dev",
     ),
     pages=[
