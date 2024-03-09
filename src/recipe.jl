@@ -25,7 +25,7 @@ function calculate!(buffer::AbstractVector{<: Point2}, alg::NoBeeswarm, position
     return
 end
 
-
+Makie.data_limits(bs::Beeswarm) = Makie.data_limits(bs.plots[1])
 function Makie.plot!(plot::Beeswarm)
     positions = plot.converted[1] # being PointBased, it should always receive a vector of Point2
     @assert positions[] isa AbstractVector{<: Point2} "`positions` should be an `AbstractVector` of `Point2` after conversion, got type $(typeof(positions)).  If you have passed in `x, y, z` input, be aware that `beeswarm` only accepts 2-D input (`x, y`)."
@@ -38,17 +38,18 @@ function Makie.plot!(plot::Beeswarm)
     # Note that this only works for 2-D Scenes, and gets us the transformed space limits,
     # so if you're trying to run this in a scene with a `transform_func`, that's something to 
     # be aware of.
-    finalwidths = lift(scene.camera.projection) do pv
+    finalwidths = lift(scene.camera.projectionview) do pv
+        isnothing(pv) && return Vec2f(0)
         xmin, xmax = minmax((((-1, 1) .- pv[1, 4]) ./ pv[1, 1])...)
         ymin, ymax = minmax((((-1, 1) .- pv[2, 4]) ./ pv[2, 2])...)
-        return Makie.Vec2(xmax - xmin, ymax - ymin)
+        return Makie.Vec2f(xmax - xmin, ymax - ymin)
     end
     # and its viewport (in case the scene changes size)
     pixel_widths = @lift widths($(scene.viewport))
     old_pixel_widths = Ref(pixel_widths[])
     old_finalwidths = Ref(finalwidths[])
 
-    should_update_based_on_zoom = Observable(nothing)
+    should_update_based_on_zoom = Observable{Bool}(true)
     lift(plot, finalwidths, pixel_widths) do fw, pw # if we change more than 5%, recalculate.
         if !all(isapprox.(fw, old_finalwidths[]; rtol = 0.05)) || !all(isapprox.(pw, old_pixel_widths[]; rtol = 0.05))
             old_pixel_widths[] = pw
@@ -61,7 +62,7 @@ function Makie.plot!(plot::Beeswarm)
     # set up buffers
     point_buffer = Observable{Vector{Point2f}}(zeros(Point2f, length(positions[])))
     pixelspace_point_buffer = Observable{Vector{Point2f}}(zeros(Point2f, length(positions[])))
-    color_buffer = Observable{Vector{RGBA{Float32}}}()
+    color_buffer = Observable{Vector{Makie.RGBAf}}(zeros(Makie.RGBAf, length(positions[])))
     # when the positions change, we must update the buffer arrays
     onany(plot, plot.converted[1], plot.algorithm, plot.color, plot.markersize, should_update_based_on_zoom) do positions, algorithm, colors, markersize, _
         if length(positions) != length(point_buffer[])
@@ -91,6 +92,7 @@ function Makie.plot!(plot::Beeswarm)
         attrs,
         point_buffer
     )
+    notify(should_update_based_on_zoom)
     return
 end
 
