@@ -43,7 +43,7 @@ function Makie.plot!(plot::Beeswarm)
     # Note that this only works for 2-D Scenes, and gets us the transformed space limits,
     # so if you're trying to run this in a scene with a `transform_func`, that's something to 
     # be aware of.
-    finalwidths = lift(scene.camera.projectionview) do pv
+    final_widths = lift(scene.camera.projectionview) do pv
         isnothing(pv) && return Vec2f(0)
         xmin, xmax = minmax((((-1, 1) .- pv[1, 4]) ./ pv[1, 1])...)
         ymin, ymax = minmax((((-1, 1) .- pv[2, 4]) ./ pv[2, 2])...)
@@ -52,17 +52,17 @@ function Makie.plot!(plot::Beeswarm)
     # and its viewport (in case the scene changes size)
     pixel_widths = @lift widths($(scene.viewport))
     old_pixel_widths = Ref(pixel_widths[])
-    old_finalwidths = Ref(finalwidths[])
+    old_finalwidths = Ref(final_widths[])
 
     should_update_based_on_zoom = Observable{Bool}(true)
-    onany(plot, finalwidths, pixel_widths) do fw, pw # if we change more than 5%, recalculate.
+    onany(plot, final_widths, pixel_widths) do fw, pw # if we change more than 5%, recalculate.
         if !all(isapprox.(fw, old_finalwidths[]; rtol = 0.05)) || !all(isapprox.(pw, old_pixel_widths[]; rtol = 0.05))
             old_pixel_widths[] = pw
             old_finalwidths[] = fw
             notify(should_update_based_on_zoom)
         end
     end
-    notify(finalwidths)
+    notify(final_widths)
 
     
     # set up buffers
@@ -73,25 +73,24 @@ function Makie.plot!(plot::Beeswarm)
     onany(plot, plot.converted[1], plot.algorithm, plot.color, plot.markersize, should_update_based_on_zoom) do positions, algorithm, colors, markersize, _
         if length(positions) != length(point_buffer[])
             # recreate point buffer if lengths have changed
-            point_buffer.val = zeros(Point2f, length(positions))
+            point_buffer.val = copy(positions)
             pixelspace_point_buffer.val = zeros(Point2f, length(positions))
             # color_buffer.val = zeros(RGBA{Float32}, length(positions))
         end
         pixelspace_point_buffer.val .= Makie.project.((scene.camera, ), :data, :pixel, positions)
         calculate!(point_buffer.val, algorithm, pixelspace_point_buffer.val, markersize)
-        point_buffer.val .= Makie.project.((scene.camera,), :pixel, :data, pixelspace_point_buffer.val)
+        point_buffer.val .= Makie.project.((scene.camera,), :pixel, :data, point_buffer.val)
         # color_buffer.val .= colors # TODO: figure out some way to make this better.
-
         # update the scatter plot
         notify(point_buffer)
     end
     # create a set of Attributes that we can pass down
     attrs = copy(plot.attributes)
     pop!(attrs, :algorithm)
-    pop!(attrs, :space)
+    # pop!(attrs, :space)
     # attrs[:color] = color_buffer
-    attrs[:space] = :data
-    attrs[:markerspace] = :pixel
+    # attrs[:space] = :data
+    # attrs[:markerspace] = :pixel
     # create the scatter plot
     scatter_plot = scatter!(
         plot,
