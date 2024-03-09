@@ -1,5 +1,9 @@
 # # Beeswarm recipe
 
+export beeswarm, beeswarm!
+
+export NoBeeswarm
+
 # In this file, we define the `Beeswarm` recipe.
 
 @recipe(Beeswarm, positions) do scene
@@ -26,6 +30,7 @@ function calculate!(buffer::AbstractVector{<: Point2}, alg::NoBeeswarm, position
 end
 
 Makie.data_limits(bs::Beeswarm) = Makie.data_limits(bs.plots[1])
+
 function Makie.plot!(plot::Beeswarm)
     positions = plot.converted[1] # being PointBased, it should always receive a vector of Point2
     @assert positions[] isa AbstractVector{<: Point2} "`positions` should be an `AbstractVector` of `Point2` after conversion, got type $(typeof(positions)).  If you have passed in `x, y, z` input, be aware that `beeswarm` only accepts 2-D input (`x, y`)."

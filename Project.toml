@@ -4,6 +4,7 @@ authors = ["Anshul Singhvi <anshulsinghvi@gmail.com>", "Jacob Zelko <jacobszelko
 version = "0.0.1-DEV"
 
 [deps]
+KernelDensity = "5ab0869b-81aa-558d-bb23-cbf5423bbe9b"
 Makie = "ee78f7c6-11fb-53f2-987a-cfe4a2b5a57a"
 Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 

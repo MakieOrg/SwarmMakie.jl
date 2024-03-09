@@ -1,3 +1,14 @@
+# Michael Borregaard's beeswarm
+
+export MKBorregaardBeeswarm
+
+struct MKBorregaardBeeswarm <: BeeswarmAlgorithm end
+
+function calculate!(buffer::AbstractVector{<: Point2}, alg::MKBorregaardBeeswarm, positions::AbstractVector{<: Point2}, markersize)
+    x, y = beeswarm_coords(last.(positions))
+    buffer .= Point2f.(x, y)
+end
+
 
 function beeswarm_coords(olda, side = :both)
 
@@ -108,11 +119,15 @@ function beeswarm_coords(olda, side = :both)
     rety, olda
 end
 
-x,y = beeswarm_coords(collect(iris[!, :SepalLength]), :both)
 
+#=
+```@example
+using DataFrames, RDatasets
+using SwarmMakie, CairoMakie
 
-using DataFrames, RDatasets #, Plots
 iris = dataset("datasets", "iris")
 
-x,y = beeswarm_coords(collect(iris[!, :SepalLength]), :both)
+x,y = SwarmMakie.beeswarm_coords(collect(iris[!, :SepalLength]), :both)
 Makie.scatter(x,y, color = iris[!, :Species].refs, markersize = 7, axis = (; aspect = DataAspect()))
+```
+=#
