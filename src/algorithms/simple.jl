@@ -2,6 +2,10 @@
 
 export SimpleBeeswarm
 
+#=
+This is a simple beeswarm implementation as used in Matplotlib.
+=#
+
 """
     SimpleBeeswarm()
 
@@ -35,20 +39,28 @@ function calculate!(buffer::AbstractVector{<: Point2}, alg::SimpleBeeswarm, posi
     push!(bin_idxs, idxs)
     push!(bin_vals, ys)
 
-    nmax = maximum(length, bin_idxs)
+    # nmax = maximum(length, bin_idxs)
 
     xs = zeros(eltype(ys), size(positions))
+
     for (b_idxs, b_vals) in zip(bin_idxs, bin_vals)
         if length(idxs) < 1 # if only 1 element exists, continue
             continue
         else
+
             j = length(b_idxs) % 2
+            # Resort the indices in the bin by y-value,
+            # which allows us to ensure that all markers in the bin
+            # are monotonically increasing in the y direction as they 
+            # go farther from the center.
             resorted_b_idxs = b_idxs[sortperm(b_vals)]
+            # Split the bin in two parts, evenly split.
             a = resorted_b_idxs[begin:2:end]
             b = resorted_b_idxs[(begin+1):2:end]
-            xs[a] .= ((1:length(a))) .* markersize
-            xs[b] .= ((1:length(b))) .* (-markersize)
+            # Populate the x-array.
+            xs[a] .= ((1:length(a))) .* markersize .- markersize/2
+            xs[b] .= ((1:length(b))) .* (-markersize) .+ markersize/2
         end
     end
-    buffer .= Point2f.(xs, last.(positions))
+    buffer .= Point2f.(xs .+ first.(positions), last.(positions))
 end

@@ -9,7 +9,7 @@ export NoBeeswarm
 @recipe(Beeswarm, positions) do scene
     return merge(
         Attributes(
-            algorithm = NoBeeswarm(),
+            algorithm = SimpleBeeswarm(),
         ),
         default_theme(scene, Scatter),
     )
@@ -68,29 +68,28 @@ function Makie.plot!(plot::Beeswarm)
     # set up buffers
     point_buffer = Observable{Vector{Point2f}}(zeros(Point2f, length(positions[])))
     pixelspace_point_buffer = Observable{Vector{Point2f}}(zeros(Point2f, length(positions[])))
-    color_buffer = Observable{Vector{Makie.RGBAf}}(zeros(Makie.RGBAf, length(positions[])))
     # when the positions change, we must update the buffer arrays
     onany(plot, plot.converted[1], plot.algorithm, plot.color, plot.markersize, should_update_based_on_zoom) do positions, algorithm, colors, markersize, _
         if length(positions) != length(point_buffer[])
-            # recreate point buffer if lengths have changed
+            # recreate the point buffers if lengths have changed
             point_buffer.val = copy(positions)
             pixelspace_point_buffer.val = zeros(Point2f, length(positions))
-            # color_buffer.val = zeros(RGBA{Float32}, length(positions))
         end
-        pixelspace_point_buffer.val .= Makie.project.((scene.camera, ), :data, :pixel, positions)
+        # Project input positions from data space to pixel space
+        pixelspace_point_buffer.val .= Makie.project.((scene.camera,), :data, :pixel, positions)
+        # Calculate the beeswarm in pixel space and store it in `point_buffer.val`
         calculate!(point_buffer.val, algorithm, pixelspace_point_buffer.val, markersize)
+        # Project the beeswarm back to data space and store it, again, in `point_buffer.val`
         point_buffer.val .= Makie.project.((scene.camera,), :pixel, :data, point_buffer.val)
-        # color_buffer.val .= colors # TODO: figure out some way to make this better.
-        # update the scatter plot
+        # Finally, update the scatter plot
         notify(point_buffer)
     end
     # create a set of Attributes that we can pass down
     attrs = copy(plot.attributes)
     pop!(attrs, :algorithm)
     # pop!(attrs, :space)
-    # attrs[:color] = color_buffer
-    # attrs[:space] = :data
-    # attrs[:markerspace] = :pixel
+    attrs[:space] = :data
+    attrs[:markerspace] = :pixel
     # create the scatter plot
     scatter_plot = scatter!(
         plot,
