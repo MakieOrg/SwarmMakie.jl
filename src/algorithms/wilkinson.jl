@@ -45,7 +45,7 @@ This is why we've essentially reimplemented the histogram here, as opposed to us
 =#
 
 function calculate!(buffer::AbstractVector{<: Point2}, alg::WilkinsonBeeswarm, positions::AbstractVector{<: Point2}, markersize, side::Symbol)
-    @info "Calculating..."
+    @debug "Calculating..."
     # Here, we need to find each unique x-value, which indicates a different group or category.
     xs = first.(positions)
     ## Once we've found this, then we can calculate 

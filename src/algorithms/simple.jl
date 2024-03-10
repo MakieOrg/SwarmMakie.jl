@@ -21,7 +21,7 @@ end
 
 
 function calculate!(buffer::AbstractVector{<: Point2}, alg::SimpleBeeswarm, positions::AbstractVector{<: Point2}, markersize, side::Symbol)
-    @info "Calculating..."
+    @debug "Calculating..."
     ys = last.(positions)
     xs = first.(positions)
 
