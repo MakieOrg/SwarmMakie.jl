@@ -17,21 +17,21 @@ end
 
 
 
-function calculate!(buffer::AbstractVector{<: Point2}, alg::SimpleBeeswarm, positions::AbstractVector{<: Point2}, markersize)
+function calculate!(buffer::AbstractVector{<: Point2}, alg::SimpleBeeswarm, positions::AbstractVector{<: Point2}, markersize, side::Symbol)
     @info "Calculating..."
     ys = last.(positions)
     xs = first.(positions)
 
     for x_val in unique(xs)
         group = findall(==(x_val), xs)
-        xs[group] .= simple_xs(view(ys, group), markersize)
+        xs[group] .= simple_xs(view(ys, group), markersize, side)
     end
     
     buffer .= Point2f.(xs .+ first.(positions), last.(positions))
 end
 
 
-function simple_xs(ys, markersize)
+function simple_xs(ys, markersize, side)
     n_points = length(ys)
     ymin, ymax = extrema(ys)
     nbins = round(Int, (ymax - ymin) ÷ markersize)
@@ -73,12 +73,21 @@ function simple_xs(ys, markersize)
             # are monotonically increasing in the y direction as they 
             # go farther from the center.
             resorted_b_idxs = b_idxs[sortperm(b_vals)]
-            # Split the bin in two parts, evenly split.
-            a = resorted_b_idxs[begin:2:end]
-            b = resorted_b_idxs[(begin+1):2:end]
-            # Populate the x-array.
-            xs[a] .= ((1:length(a))) .* markersize .- markersize/2
-            xs[b] .= ((1:length(b))) .* (-markersize) .+ markersize/2
+            if side == :both
+                # Split the bin in two parts, evenly split.
+                a = resorted_b_idxs[begin:2:end]
+                b = resorted_b_idxs[(begin+1):2:end]
+                # Populate the x-array.
+                xs[a] .= ((1:length(a))) .* markersize .- markersize/2
+                xs[b] .= ((1:length(b))) .* (-markersize) .+ markersize/2
+            elseif side == :left
+                # Populate the x-array.
+                xs[resorted_b_idxs] .= ((1:length(resorted_b_idxs))) .* markersize .- markersize/2
+            elseif side == :right
+                # Populate the x-array.
+                xs[resorted_b_idxs] .= ((1:length(resorted_b_idxs))) .* (-markersize) .+ markersize/2
+            end
+            
         end
     end
     return xs

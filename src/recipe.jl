@@ -12,7 +12,12 @@ export NoBeeswarm
 
 `beeswarm` is a `PointBased` recipe like `scatter`, accepting all of `scatter`'s input.  
 
-It displaces points which would otherwise overlap in the x-direction by binning in the y direction.  
+It displaces points which would otherwise overlap in the x-direction by binning in the y direction. 
+
+Specific attributes to `beeswarm` are:
+- `algorithm = SimpleBeeswarm()`: The algorithm used to lay out the beeswarm markers.
+- `side = :both`: The side towards which markers should extend.  Can be `:left`, `:right`, or both.  
+- `direction = :y`: Controls the direction of the beeswarm.  Can be `:y` (vertical) or `:x` (horizontal).
 
 ## Arguments
 $(Makie.ATTRIBUTES)
@@ -28,6 +33,8 @@ beeswarm(ones(100), randn(100); color = rand(RGBf, 100))
     return merge(
         Attributes(
             algorithm = SimpleBeeswarm(),
+            side = :both,
+            direction = :y,
         ),
         default_theme(scene, Scatter),
     )
@@ -41,7 +48,7 @@ abstract type BeeswarmAlgorithm end
 struct NoBeeswarm <: BeeswarmAlgorithm
 end
 
-function calculate!(buffer::AbstractVector{<: Point2}, alg::NoBeeswarm, positions::AbstractVector{<: Point2}, markersize)
+function calculate!(buffer::AbstractVector{<: Point2}, alg::NoBeeswarm, positions::AbstractVector{<: Point2}, markersize, side::Symbol, direction::Symbol)
     @info "Calculating..."
     buffer .= positions
     return
@@ -87,24 +94,28 @@ function Makie.plot!(plot::Beeswarm)
     point_buffer = Observable{Vector{Point2f}}(zeros(Point2f, length(positions[])))
     pixelspace_point_buffer = Observable{Vector{Point2f}}(zeros(Point2f, length(positions[])))
     # when the positions change, we must update the buffer arrays
-    onany(plot, plot.converted[1], plot.algorithm, plot.color, plot.markersize, should_update_based_on_zoom) do positions, algorithm, colors, markersize, _
+    onany(plot, plot.converted[1], plot.algorithm, plot.color, plot.markersize, plot.side, plot.direction, should_update_based_on_zoom) do positions, algorithm, colors, markersize, side, direction, _
+        @assert side in (:both, :left, :right) "side should be one of :both, :left, or :right, got $(side)"
+        @assert direction in (:x, :y) "direction should be one of :x or :y, got $(direction)"
         if length(positions) != length(point_buffer[])
             # recreate the point buffers if lengths have changed
             point_buffer.val = copy(positions)
             pixelspace_point_buffer.val = zeros(Point2f, length(positions))
         end
         # Project input positions from data space to pixel space
-        pixelspace_point_buffer.val .= Makie.project.((scene.camera,), :data, :pixel, positions)
+        pixelspace_point_buffer.val .= Makie.project.((scene.camera,), :data, :pixel, direction == :y ? positions : reverse.(positions))
         # Calculate the beeswarm in pixel space and store it in `point_buffer.val`
-        calculate!(point_buffer.val, algorithm, pixelspace_point_buffer.val, markersize)
+        calculate!(point_buffer.val, algorithm, direction == :y ? pixelspace_point_buffer.val : reverse.(pixelspace_point_buffer.val), markersize, side)
         # Project the beeswarm back to data space and store it, again, in `point_buffer.val`
-        point_buffer.val .= Makie.project.((scene.camera,), :pixel, :data, point_buffer.val)
+        point_buffer.val .= Makie.project.((scene.camera,), :pixel, :data, direction == :y ? (point_buffer.val) : reverse.(point_buffer.val))
         # Finally, update the scatter plot
         notify(point_buffer)
     end
     # create a set of Attributes that we can pass down
     attrs = copy(plot.attributes)
     pop!(attrs, :algorithm)
+    pop!(attrs, :side)
+    pop!(attrs, :direction)
     # pop!(attrs, :space)
     attrs[:space] = :data
     attrs[:markerspace] = :pixel

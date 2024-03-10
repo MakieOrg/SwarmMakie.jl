@@ -32,7 +32,7 @@ but takes longer to compute.
 """
 struct SeabornBeeswarm <: BeeswarmAlgorithm end
 
-function SwarmMakie.calculate!(buffer::AbstractVector{<: Point2}, alg::SeabornBeeswarm, positions::AbstractVector{<: Point2}, markersize)
+function SwarmMakie.calculate!(buffer::AbstractVector{<: Point2}, alg::SeabornBeeswarm, positions::AbstractVector{<: Point2}, markersize, side::Symbol)
     markersizes = if length(markersize) != length(positions)
         fill(markersize, length(positions))
     else

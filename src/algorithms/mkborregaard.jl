@@ -4,7 +4,7 @@ export MKBorregaardBeeswarm
 
 struct MKBorregaardBeeswarm <: BeeswarmAlgorithm end
 
-function calculate!(buffer::AbstractVector{<: Point2}, alg::MKBorregaardBeeswarm, positions::AbstractVector{<: Point2}, markersize)
+function calculate!(buffer::AbstractVector{<: Point2}, alg::MKBorregaardBeeswarm, positions::AbstractVector{<: Point2}, markersize, side::Symbol)
     x, y = beeswarm_coords(last.(positions), :both, markersize)
     buffer .= Point2f.(x .+ first.(positions), y)
 end

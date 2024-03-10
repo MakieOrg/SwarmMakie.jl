@@ -14,7 +14,7 @@ A simple implementation like Matplotlib's algorithm.
 struct WilkinsonBeeswarm <: BeeswarmAlgorithm
 end
 
-function calculate!(buffer::AbstractVector{<: Point2}, alg::WilkinsonBeeswarm, positions::AbstractVector{<: Point2}, markersize::Real)
+function calculate!(buffer::AbstractVector{<: Point2}, alg::WilkinsonBeeswarm, positions::AbstractVector{<: Point2}, markersize, side::Symbol)
     #= 
     
     Initial sketch of code credited to Frederic Freyer and Julius Krumbiegel.

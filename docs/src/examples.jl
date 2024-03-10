@@ -48,3 +48,21 @@ Makie.update_state_before_display!(f)
 Makie.update_state_before_display!(f)
 Makie.update_state_before_display!(f)
 f
+
+# ## Wilkinson's dot histogram
+
+using CairoMakie, SwarmMakie
+using RDatasets, DataFrames
+mtcars = dataset("datasets", "mtcars")
+
+f, a, p = beeswarm(
+    ones(length(mtcars[!, :MPG])), 
+    mtcars[!, :MPG]; 
+    algorithm = SimpleBeeswarm(), 
+    markersize = 20,
+)
+p.side = :both
+p.direction = :x
+f
+
+# Note that to use `side != :both`, you will have to set the limits of the axis explicitly.
