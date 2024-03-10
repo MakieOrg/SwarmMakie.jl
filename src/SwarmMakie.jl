@@ -6,7 +6,8 @@ using Makie
 using Random
 import StatsBase:
     Histogram,
-    fit
+    fit,
+    UnitWeights
 
 include("recipe.jl")
 include("algorithms/simple.jl")
