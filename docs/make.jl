@@ -58,6 +58,9 @@ withenv("JULIA_DEBUG" => "Literate") do # allow Literate debug output to escape 
     # TODO: We should probably fix the above in `process_literate_recursive!`.
 end
 
+# As a special case, literatify the examples.jl file in docs/src to Documenter markdown
+Literate.markdown(joinpath(@__DIR__, "src", "examples.jl"), joinpath(@__DIR__, "src"); flavor = Literate.DocumenterFlavor())
+
 makedocs(;
     modules=[SwarmMakie],
     authors="Anshul Singhvi <anshulsinghvi@gmail.com>, Jacob Zelko <jacobszelko@gmail.com>, Michael Krabbe Borregaard <mkborregaard@snm.ku.dk>, and contributors",
@@ -70,6 +73,7 @@ makedocs(;
     pages=[
         "Introduction" => "introduction.md",
         "Algorithms" => "algorithms.md",
+        "Examples" => "examples.md",
         "API Reference" => "api.md",
         "Source code" => literate_pages,
     ],
