@@ -51,7 +51,7 @@ struct NoBeeswarm <: BeeswarmAlgorithm
 end
 
 function calculate!(buffer::AbstractVector{<: Point2}, alg::NoBeeswarm, positions::AbstractVector{<: Point2}, markersize, side::Symbol)
-    @info "Calculating..."
+    @debug "Calculating..."
     buffer .= positions
     return
 end
