@@ -6,6 +6,8 @@
 
 Beeswarm plots in Makie!
 
+<img src="docs/src/assets/logo.png" width=200/>
+
 ## Quick start
 
 The entry point to this package is the `beeswarm` recipe, which accepts input the same way `scatter` does in all respects -- plus a keyword `algorithm`, which specifies the beeswarm algorithm!
