@@ -6,6 +6,24 @@ export NoBeeswarm
 
 # In this file, we define the `Beeswarm` recipe.
 
+"""
+    beeswarm(x, y)
+    beeswarm(positions)
+
+`beeswarm` is a `PointBased` recipe like `scatter`, accepting all of `scatter`'s input.  
+
+It displaces points which would otherwise overlap in the x-direction by binning in the y direction.  
+
+## Arguments
+$(Makie.ATTRIBUTES)
+
+## Example
+
+```julia
+using Makie, SwarmMakie
+beeswarm(ones(100), randn(100); color = rand(RGBf, 100))
+```
+"""
 @recipe(Beeswarm, positions) do scene
     return merge(
         Attributes(
