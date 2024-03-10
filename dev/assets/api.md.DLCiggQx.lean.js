@@ -1,1 +1,0 @@
-import{_ as s,c as a,o as e,a7 as i}from"./chunks/framework.CtKH--HK.js";const g=JSON.parse('{"title":"API Reference","description":"","frontmatter":{},"headers":[],"relativePath":"api.md","filePath":"api.md","lastUpdated":null}'),n={name:"api.md"},p=i("",6),l=[p];function t(r,o,c,h,d,k){return e(),a("div",null,l)}const b=s(n,[["render",t]]);export{g as __pageData,b as default};
