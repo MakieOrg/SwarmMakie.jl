@@ -1,4 +1,4 @@
-# # Michael Borregaard's beeswarm
+# # Michael Borregaard beeswarm
 
 export MKBorregaardBeeswarm
 
