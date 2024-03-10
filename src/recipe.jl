@@ -45,10 +45,12 @@ Makie.conversion_trait(::Type{<: Beeswarm}) = Makie.PointBased()
 # this is subtyped by e.g. `SimpleBeeswarm` and `VerticallyChallengedBeeswarm`
 abstract type BeeswarmAlgorithm end
 
+# This is mostly useful to test the recipe...
+"A simple no-op algorithm, which causes the scatter plot to be drawn as if you called `scatter` and not `beeswarm`."
 struct NoBeeswarm <: BeeswarmAlgorithm
 end
 
-function calculate!(buffer::AbstractVector{<: Point2}, alg::NoBeeswarm, positions::AbstractVector{<: Point2}, markersize, side::Symbol, direction::Symbol)
+function calculate!(buffer::AbstractVector{<: Point2}, alg::NoBeeswarm, positions::AbstractVector{<: Point2}, markersize, side::Symbol)
     @info "Calculating..."
     buffer .= positions
     return
@@ -103,11 +105,11 @@ function Makie.plot!(plot::Beeswarm)
             pixelspace_point_buffer.val = zeros(Point2f, length(positions))
         end
         # Project input positions from data space to pixel space
-        pixelspace_point_buffer.val .= Makie.project.((scene.camera,), :data, :pixel, direction == :y ? positions : reverse.(positions))
+        pixelspace_point_buffer.val .= Point2f.(Makie.project.((scene.camera,), :data, :pixel, direction == :y ? positions : reverse.(positions)))
         # Calculate the beeswarm in pixel space and store it in `point_buffer.val`
         calculate!(point_buffer.val, algorithm, direction == :y ? pixelspace_point_buffer.val : reverse.(pixelspace_point_buffer.val), markersize, side)
         # Project the beeswarm back to data space and store it, again, in `point_buffer.val`
-        point_buffer.val .= Makie.project.((scene.camera,), :pixel, :data, direction == :y ? (point_buffer.val) : reverse.(point_buffer.val))
+        point_buffer.val .= Point2f.(Makie.project.((scene.camera,), :pixel, :data, direction == :y ? (point_buffer.val) : reverse.(point_buffer.val)))
         # Finally, update the scatter plot
         notify(point_buffer)
     end
