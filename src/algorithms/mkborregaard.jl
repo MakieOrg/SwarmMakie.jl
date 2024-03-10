@@ -127,7 +127,7 @@ using SwarmMakie, CairoMakie
 
 iris = dataset("datasets", "iris")
 
-x,y = SwarmMakie.beeswarm_coords(collect(iris[!, :SepalLength]), :both)
+x,y = SwarmMakie.beeswarm_coords(collect(iris[!, :SepalLength]), :both, 7)
 Makie.scatter(x,y, color = iris[!, :Species].refs, markersize = 7, axis = (; aspect = DataAspect()))
 ```
 =#
