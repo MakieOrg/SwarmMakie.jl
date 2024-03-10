@@ -14,23 +14,22 @@ A simple implementation like Matplotlib's algorithm.
 struct SimpleBeeswarm <: BeeswarmAlgorithm
 end
 
-
-
-function calculate!(buffer::AbstractVector{<: Point2}, alg::SimpleBeeswarm, positions::AbstractVector{<: Point2}, markersize)
+function calculate!(buffer::AbstractVector{<: Point2}, alg::SimpleBeeswarm, positions::AbstractVector{<: Point2}, markersize::Real)
     @info "Calculating..."
     ys = last.(positions)
     xs = first.(positions)
 
     for x_val in unique(xs)
         group = findall(==(x_val), xs)
+        println(group)
+        println(ys)
         xs[group] .= simple_xs(view(ys, group), markersize)
     end
     
-    buffer .= Point2f.(xs .+ first.(positions), last.(positions))
+    buffer .= Point2f.(xs .+ first.(positions), ys)
 end
 
-
-function simple_xs(ys, markersize)
+function simple_xs(ys::AbstractVector{<: Real}, markersize::Real)
     n_points = length(ys)
     ymin, ymax = extrema(ys)
     nbins = round(Int, (ymax - ymin) ÷ markersize)
@@ -43,7 +42,7 @@ function simple_xs(ys, markersize)
     bin_idxs = Vector{Vector{Int}}()
     bin_vals = Vector{Vector{eltype(ys)}}()
 
-    for (j, ybin) in enumerate(ybins)
+    for ybin in ybins
         mask = ys .< ybin
         push!(bin_idxs, idxs[mask])
         push!(bin_vals, ys[mask])
@@ -65,7 +64,6 @@ function simple_xs(ys, markersize)
         if length(idxs) < 1 # if only 1 element exists, continue
             continue
         else
-
             j = length(b_idxs) % 2
             # Resort the indices in the bin by y-value,
             # which allows us to ensure that all markers in the bin
