@@ -9,7 +9,8 @@ This is a simple beeswarm implementation as used in Matplotlib.
 """
     SimpleBeeswarm()
 
-A simple implementation like Matplotlib's algorithm.
+A simple implementation like Matplotlib's algorithm.  This is the 
+default algorithm used in `beeswarm`.
 """
 struct SimpleBeeswarm <: BeeswarmAlgorithm
 end
