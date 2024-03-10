@@ -18,7 +18,12 @@ This may optionally contain fields which control the algorithm, but in this case
 """
     WilkinsonBeeswarm()
 
-A simple implementation like Matplotlib's algorithm.
+A beeswarm algorithm that implements Leland Wilkinson's original dot-hist algorithm.
+
+This is essentially a histogram with dots, where all dots are binned in the `y` (non-categorical)
+direction, and then dodged in the `x` (categorical) direction.  
+
+Original y-coordinates are not preserved, and if you want that try [`SimpleBeeswarm`](@ref) instead.
 """
 struct WilkinsonBeeswarm <: BeeswarmAlgorithm
 end
@@ -105,12 +110,12 @@ function wilkinson_kernel!(buffer, positions, markersize, side::Symbol)
         push!(bin_idxs[current_index], i)
     end
 
-    #=
-    ### Calculating positions
+#=
+### Calculating positions
 
-    Now that we have the indices of the points in each bin, we can calculate the positions.
-    We force the points to dodge each other by `markersize`.
-    =#
+Now that we have the indices of the points in each bin, we can calculate the positions.
+We force the points to dodge each other by `markersize`.
+=#
     for (i, idxs) in enumerate(bin_idxs)
         isempty(idxs) && continue
         ## This is the center of the bin cell

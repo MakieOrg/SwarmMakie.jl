@@ -2,10 +2,11 @@
 
 SwarmMakie aims to offer several beeswarm algorithms, which give different results.
 
-Currently, it only offers the [`SimpleBeeswarm`](@ref) algorithm, which is inspired by Matplotlib and Seaborn, and a no-op [`NoBeeswarm`](@ref) struct which simply decomposes back to the original scatter plot.
+Currently, it offers the [`SimpleBeeswarm`](@ref) and [`WilkinsonBeeswarm`](@ref) algorithms, which is inspired by Matplotlib and Seaborn, and a no-op [`NoBeeswarm`](@ref) struct which simply decomposes back to the original scatter plot.
 
 ```@docs; canonical=false
 SimpleBeeswarm
+WilkinsonBeeswarm
 NoBeeswarm
 ```
 
@@ -17,7 +18,6 @@ We also welcome any new algorithms you may have in mind.  Just open a PR!
 
 In order to add a new algorithm, you must simply define a `struct` which subtypes `SwarmMakie.BeeswarmAlgorithm`.
 
-There must also be a corresponding dispatch on `SwarmMakie.calculate!(buffer, alg, positions, markersize)` which loads the new positions calculated in pixel space into `buffer`.
+There must also be a corresponding dispatch on `SwarmMakie.calculate!(buffer, alg, positions, markersize)` which loads the new positions calculated in pixel space into `buffer`.  Note that `buffer` _must_ be modified here.
 
-
-
+See the [Wilkinson beeswarm](@ref Wilkinson beeswarm) page for a deep dive into how to write a beeswarm algorithm!

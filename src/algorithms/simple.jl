@@ -11,6 +11,9 @@ This is a simple beeswarm implementation as used in Matplotlib.
 
 A simple implementation like Matplotlib's algorithm.  This is the 
 default algorithm used in `beeswarm`.
+
+This algorithm dodges in `x` but preserves the exact `y` coordinate of each point.
+If you don't want to preserve the y coordinate, check out [`WilkinsonBeeswarm`](@ref).
 """
 struct SimpleBeeswarm <: BeeswarmAlgorithm
 end
