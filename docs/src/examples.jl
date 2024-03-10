@@ -36,7 +36,7 @@ f, a, p = beeswarm(
     fill(1, length(iris[!, :SepalLength])), 
     iris[!, :SepalLength]; 
     color = iris[!, :Species].refs, 
-    colormap = Makie.Categorical(RGBA{Float32}[RGBA{Float32}(0.082f0,0.643f0,0.918f0,1.0f0), RGBA{Float32}(0.91f0,0.122f0,0.361f0,1.0f0), RGBA{Float32}(0.929f0,0.773f0,0.0f0,1.0f0)]), 
+    colormap = Makie.Categorical(RGBAf[RGBAf(0.082f0,0.643f0,0.918f0,1.0f0), RGBAf(0.91f0,0.122f0,0.361f0,1.0f0), RGBAf(0.929f0,0.773f0,0.0f0,1.0f0)]), 
     markersize = 20
 )
 f.scene.backgroundcolor[] = RGBAf(1,1,1,0)
