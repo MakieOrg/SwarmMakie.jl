@@ -14,11 +14,29 @@ A simple implementation like Matplotlib's algorithm.
 struct SimpleBeeswarm <: BeeswarmAlgorithm
 end
 
+
+
 function calculate!(buffer::AbstractVector{<: Point2}, alg::SimpleBeeswarm, positions::AbstractVector{<: Point2}, markersize)
     @info "Calculating..."
     ys = last.(positions)
+    xs = first.(positions)
+
+    for x_val in unique(xs)
+        group = findall(==(x_val), xs)
+        xs[group] .= simple_xs(view(ys, group), markersize)
+    end
+    
+    buffer .= Point2f.(xs .+ first.(positions), last.(positions))
+end
+
+
+function simple_xs(ys, markersize)
+    n_points = length(ys)
     ymin, ymax = extrema(ys)
     nbins = round(Int, (ymax - ymin) ÷ markersize)
+    if nbins ≤ 2
+        nbins = 3
+    end
     dy = markersize
     ybins = LinRange(ymin+dy, ymax-dy, nbins-1) # this is a center list of bins
     idxs = eachindex(ys)
@@ -41,7 +59,7 @@ function calculate!(buffer::AbstractVector{<: Point2}, alg::SimpleBeeswarm, posi
 
     # nmax = maximum(length, bin_idxs)
 
-    xs = zeros(eltype(ys), size(positions))
+    xs = zeros(eltype(ys), n_points)
 
     for (b_idxs, b_vals) in zip(bin_idxs, bin_vals)
         if length(idxs) < 1 # if only 1 element exists, continue
@@ -62,5 +80,5 @@ function calculate!(buffer::AbstractVector{<: Point2}, alg::SimpleBeeswarm, posi
             xs[b] .= ((1:length(b))) .* (-markersize) .+ markersize/2
         end
     end
-    buffer .= Point2f.(xs .+ first.(positions), last.(positions))
+    return xs
 end
