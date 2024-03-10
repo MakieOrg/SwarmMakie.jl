@@ -18,8 +18,24 @@ Here's a quick example to get you started:
 using CairoMakie, SwarmMakie
 xs = rand(1:3, 40)
 ys = randn(40)
-f, a, p = scatter(xs, ys; color = xs)
-beeswarm(f[1, 2], xs, ys; color = xs, algorithm = NoBeeswarm())
+f, a, p = scatter(xs, ys; color = xs, axis = (; title = "Scatter plot"))
+beeswarm(f[1, 2], xs, ys; color = xs, algorithm = SimpleBeeswarm(), axis = (; title = "Beeswarm plot"))
 f
 ```
 
+## Use with AlgebraOfGraphics.jl
+
+As a Makie recipe, `beeswarm` also composes with AlgebraOfGraphics!
+
+```@example aog
+using AlgebraOfGraphics, CairoMakie, SwarmMakie
+using RDatasets, DataFrames
+iris = dataset("datasets", "iris")
+
+f = data(iris) * 
+    mapping(:Species, :SepalLength; color = :Species) * 
+    visual(Beeswarm) |> draw
+Makie.update_state_before_display!(f.figure)
+Makie.update_state_before_display!(f.figure)
+f
+```
