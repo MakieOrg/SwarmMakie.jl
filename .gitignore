@@ -4,3 +4,4 @@
 /docs/package-lock.json
 /docs/src/source
 */node_modules/*
+.DS_Store
