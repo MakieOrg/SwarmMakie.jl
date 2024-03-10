@@ -56,7 +56,7 @@ function Makie.plot!(plot::Beeswarm)
 
     should_update_based_on_zoom = Observable{Bool}(true)
     onany(plot, final_widths, pixel_widths) do fw, pw # if we change more than 5%, recalculate.
-        if !all(isapprox.(fw, old_finalwidths[]; rtol = 0.05)) || !all(isapprox.(pw, old_pixel_widths[]; rtol = 0.05))
+        if !all(isapprox.(fw, old_finalwidths[]; rtol = 0.1)) || !all(isapprox.(pw, old_pixel_widths[]; rtol = 0.05))
             old_pixel_widths[] = pw
             old_finalwidths[] = fw
             notify(should_update_based_on_zoom)

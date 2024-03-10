@@ -5,12 +5,12 @@ export MKBorregaardBeeswarm
 struct MKBorregaardBeeswarm <: BeeswarmAlgorithm end
 
 function calculate!(buffer::AbstractVector{<: Point2}, alg::MKBorregaardBeeswarm, positions::AbstractVector{<: Point2}, markersize)
-    x, y = beeswarm_coords(last.(positions))
-    buffer .= Point2f.(x, y)
+    x, y = beeswarm_coords(last.(positions), :both, markersize)
+    buffer .= Point2f.(x .+ first.(positions), y)
 end
 
 
-function beeswarm_coords(olda, side = :both)
+function beeswarm_coords(olda, side::Symbol, cellsize)
 
     # what should be the new y position of a point given it's x and it's closest point
     getypos(x, ptx, pty, cellsize) = pty + sqrt(cellsize^2-(ptx-x)^2)
@@ -38,11 +38,11 @@ function beeswarm_coords(olda, side = :both)
     end
 
     function potential_interactions(freeind)
-           outside_range(x) = abs(a[freeind] - x) > cellsize
-           lo_ind = findprev(outside_range, a, freeind)
-           lo = isnothing(lo_ind) ? 1 : lo_ind + 1
-           hi_ind = findnext(outside_range, a, freeind)
-           hi = isnothing(hi_ind) ? lastindex(a)-1 : hi_ind - 1
+           outside_range(x) = abs(a[freeind] - a[x]) > cellsize
+           lo_ind = findprev(outside_range, LinearIndices(a), freeind)
+           lo = isnothing(lo_ind) ? 0 : lo_ind + 1
+           hi_ind = findnext(outside_range, LinearIndices(a), freeind)
+           hi = isnothing(hi_ind) ? 0 : hi_ind - 1
            if lo != 0 && hi != 0 && hi >= lo
                   included[freeind] ? (lo:hi)[.!(included[lo:hi])] : (lo:hi)[included[lo:hi]]
            else
@@ -52,7 +52,7 @@ function beeswarm_coords(olda, side = :both)
 
     # estimate a pointsize
     a = sort(shuffle(olda))
-    cellsize = (diff([extrema(a)...])/(length(a)^0.6))[1]
+#     cellsize = (diff([extrema(a)...])/(length(a)^0.6))[1]
 
     # vectors to hold return values
     included, ys = falses(axes(a)), zeros(length(a))
