@@ -1,4 +1,4 @@
-# # Simple beeswarm
+# # Wilkinson beeswarm
 
 export WilkinsonBeeswarm
 
