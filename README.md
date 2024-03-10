@@ -15,7 +15,7 @@ using SwarmMakie, CairoMakie
 ys = rand(150)
 beeswarm(ones(length(ys)), ys)
 ```
-![download-22](https://github.com/asinghvi17/SwarmMakie.jl/assets/32143268/5b422b52-0017-4bd2-8c61-22ad195266b1)
+<img src="https://github.com/asinghvi17/SwarmMakie.jl/assets/32143268/5b422b52-0017-4bd2-8c61-22ad195266b1" width=600/>
 
 ```julia
 using SwarmMakie, CairoMakie
@@ -23,6 +23,6 @@ xs = rand(1:4, 500)
 ys = randn(500)
 beeswarm(xs, ys; color = xs)
 ```
-![download-23](https://github.com/asinghvi17/SwarmMakie.jl/assets/32143268/861f36f9-d431-41a3-8823-6d96edac0017)
+<img src="https://github.com/asinghvi17/SwarmMakie.jl/assets/32143268/861f36f9-d431-41a3-8823-6d96edac0017" width=600/>
 
 See the docs for more!
