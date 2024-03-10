@@ -2,6 +2,7 @@
 
 # ## Multiple variables with colors
 
+using CairoMakie, SwarmMakie
 xs = rand(1:4, 500)
 ys = randn(500) .+ xs
 fig, ax, plt = beeswarm(xs, ys, color = xs, colormap = :isoluminant_cm_70_c39_n256)
@@ -30,6 +31,7 @@ f
 
 using CairoMakie, SwarmMakie
 using RDatasets, DataFrames
+iris = dataset("datasets", "iris")
 f, a, p = beeswarm(
     fill(1, length(iris[!, :SepalLength])), 
     iris[!, :SepalLength]; 
