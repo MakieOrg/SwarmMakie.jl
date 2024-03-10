@@ -43,7 +43,7 @@ features:
 
 <h1> What is SwarmMakie.jl? </h1>
 
-SwarmMakie makes beeswarm plots for Makie.
+SwarmMakie makes beeswarm plots for Makie through the `beeswarm` recipe.
 
 </div>
 
