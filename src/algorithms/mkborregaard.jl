@@ -121,7 +121,7 @@ end
 
 
 #=
-```@example
+```@julia
 using DataFrames, RDatasets
 using SwarmMakie, CairoMakie
 
