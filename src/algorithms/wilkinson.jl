@@ -86,18 +86,18 @@ function wilkinson_kernel!(buffer, positions, markersize, side::Symbol)
     ## two allocation sources in the code!
     bin_idxs = [Int[] for _ in 1:nbins]
 
-    #=
-    ### Binning y-values
+#=
+### Binning y-values
 
-    We now need to bin the y-values into `nbins` bins.
+We now need to bin the y-values into `nbins` bins.
 
-    This is done by looping through each y-value, calculating 
-    the index of the bin it should be in, and then pushing the index
-    to the relevant vector in `bin_idxs`.
+This is done by looping through each y-value, calculating 
+the index of the bin it should be in, and then pushing the index
+to the relevant vector in `bin_idxs`.
 
-    Since the bins are all uniform, we don't actually need to materialize 
-    anything!
-    =#
+Since the bins are all uniform, we don't actually need to materialize 
+anything!
+=#
 
     for (i, y) in enumerate(ys)
         current_index = round(Int, (y - ymin)/markersize)
