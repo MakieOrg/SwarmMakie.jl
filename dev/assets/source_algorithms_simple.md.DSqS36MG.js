@@ -3,6 +3,9 @@ import{_ as s,c as i,o as a,a7 as n}from"./chunks/framework.CtKH--HK.js";const F
 <span class="line"></span>
 <span class="line"><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF;">A simple implementation like Matplotlib&#39;s algorithm.  This is the</span></span>
 <span class="line"><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF;">default algorithm used in \`beeswarm\`.</span></span>
+<span class="line"></span>
+<span class="line"><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF;">This algorithm dodges in \`x\` but preserves the exact \`y\` coordinate of each point.</span></span>
+<span class="line"><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF;">If you don&#39;t want to preserve the y coordinate, check out \`WilkinsonBeeswarm\`.</span></span>
 <span class="line"><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF;">&quot;&quot;&quot;</span></span>
 <span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">struct</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;"> SimpleBeeswarm </span><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">&lt;:</span><span style="--shiki-light:#005CC5;--shiki-dark:#79B8FF;"> BeeswarmAlgorithm</span></span>
 <span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">end</span></span>
@@ -10,7 +13,7 @@ import{_ as s,c as i,o as a,a7 as n}from"./chunks/framework.CtKH--HK.js";const F
 <span class="line"></span>
 <span class="line"></span>
 <span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">function</span><span style="--shiki-light:#6F42C1;--shiki-dark:#B392F0;"> calculate!</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">(buffer</span><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">::</span><span style="--shiki-light:#005CC5;--shiki-dark:#79B8FF;">AbstractVector{&lt;: Point2}</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">, alg</span><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">::</span><span style="--shiki-light:#005CC5;--shiki-dark:#79B8FF;">SimpleBeeswarm</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">, positions</span><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">::</span><span style="--shiki-light:#005CC5;--shiki-dark:#79B8FF;">AbstractVector{&lt;: Point2}</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">, markersize, side</span><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">::</span><span style="--shiki-light:#005CC5;--shiki-dark:#79B8FF;">Symbol</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">)</span></span>
-<span class="line"><span style="--shiki-light:#005CC5;--shiki-dark:#79B8FF;">    @info</span><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF;"> &quot;Calculating...&quot;</span></span>
+<span class="line"><span style="--shiki-light:#005CC5;--shiki-dark:#79B8FF;">    @debug</span><span style="--shiki-light:#032F62;--shiki-dark:#9ECBFF;"> &quot;Calculating...&quot;</span></span>
 <span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">    ys </span><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">=</span><span style="--shiki-light:#005CC5;--shiki-dark:#79B8FF;"> last</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">.(positions)</span></span>
 <span class="line"><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">    xs </span><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">=</span><span style="--shiki-light:#005CC5;--shiki-dark:#79B8FF;"> first</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;">.(positions)</span></span>
 <span class="line"></span>
@@ -61,4 +64,4 @@ import{_ as s,c as i,o as a,a7 as n}from"./chunks/framework.CtKH--HK.js";const F
 <span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">        end</span></span>
 <span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">    end</span></span>
 <span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">    return</span><span style="--shiki-light:#24292E;--shiki-dark:#E1E4E8;"> xs</span></span>
-<span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">end</span></span></code></pre></div><hr><p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl" target="_blank" rel="noreferrer">Literate.jl</a>.</em></p>`,22),k=[l];function p(t,e,r,E,d,g){return a(),i("div",null,k)}const c=s(h,[["render",p]]);export{F as __pageData,c as default};
+<span class="line"><span style="--shiki-light:#D73A49;--shiki-dark:#F97583;">end</span></span></code></pre></div><hr><p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl" target="_blank" rel="noreferrer">Literate.jl</a>.</em></p>`,22),k=[l];function p(t,e,r,d,E,g){return a(),i("div",null,k)}const c=s(h,[["render",p]]);export{F as __pageData,c as default};
