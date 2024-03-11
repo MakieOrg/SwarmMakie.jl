@@ -5,3 +5,5 @@
 /docs/src/source
 */node_modules/*
 .DS_Store
+
+docs/src/examples.md

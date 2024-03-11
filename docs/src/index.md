@@ -1,11 +1,11 @@
-```@raw html
+````@raw html
 ---
 # https://vitepress.dev/reference/default-theme-home-page
 layout: home
 
 hero:
-  name: "SwarmMakie.jl"
-  text: ""
+  name: SwarmMakie.jl
+  text: 
   tagline: Beeswarm plots for Makie.jl
   image:
     src: /logo.png
@@ -55,7 +55,8 @@ using SwarmMakie, CairoMakie
 ys = rand(150)
 beeswarm(ones(length(ys)), ys)
 ```
-<img src="https://github.com/asinghvi17/SwarmMakie.jl/assets/32143268/5b422b52-0017-4bd2-8c61-22ad195266b1" width=600/>
+
+<img src="https://github.com/asinghvi17/SwarmMakie.jl/assets/32143268/5b422b52-0017-4bd2-8c61-22ad195266b1" width=600 alt="Single, simple beeswarm"/>
 
 ```julia
 using SwarmMakie, CairoMakie
@@ -63,10 +64,11 @@ xs = rand(1:4, 500)
 ys = randn(500)
 beeswarm(xs, ys; color = xs)
 ```
-<img src="https://github.com/asinghvi17/SwarmMakie.jl/assets/32143268/861f36f9-d431-41a3-8823-6d96edac0017" width=600/>
+
+<img src="https://github.com/asinghvi17/SwarmMakie.jl/assets/32143268/861f36f9-d431-41a3-8823-6d96edac0017" width=600 alt="Beeswarm with multiple categories"/>
 
 
 </div>
 
-```
+````
 
