@@ -20,4 +20,4 @@ In order to add a new algorithm, you must simply define a `struct` which subtype
 
 There must also be a corresponding dispatch on `SwarmMakie.calculate!(buffer, alg, positions, markersize)` which loads the new positions calculated in pixel space into `buffer`.  Note that `buffer` _must_ be modified here.
 
-See the [Wilkinson beeswarm](@ref Wilkinson beeswarm) page for a deep dive into how to write a beeswarm algorithm!
+See the Wilkinson source page for a deep dive into how to write a beeswarm algorithm!
