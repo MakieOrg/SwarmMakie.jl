@@ -16,16 +16,42 @@ Benedikt Ehinger and Vladimir Mikheev, in
 (https://github.com/MakieOrg/Makie.jl/pull/2872)[PR 2872 to Makie.jl].
 =#
 
+#=
+Allow to globally set jitter RNG for testing.
+
+A bit of a lazy solution, but it doesn't seem to be desirable to
+pass the RNG through the plotting command.
+=#
+const JITTER_RNG = Ref{Random.AbstractRNG}(Random.GLOBAL_RNG)
+
+"The abstract type for jitter algorithms, which are markersize-agnostic."
 abstract type JitterAlgorithm <: BeeswarmAlgorithm end
 
+"""
+	UniformJitter(; jitter_width = 1.0)
+
+A jitter algorithm that uses a uniform distribution to create the jitter.
+"""
 Base.@kwdef struct UniformJitter <: JitterAlgorithm 
 	jitter_width::Float32 = 1.0
 	clamped_portion::Float32 = 0.0
 end
+"""
+	PseudorandomJitter(; jitter_width = 1.0)
+
+A jitter algorithm that uses a pseudorandom distribution to create the jitter.
+A pseudorandom distribution is a uniform distribution weighted by the PDF of the data.
+"""
 Base.@kwdef struct PseudorandomJitter <: JitterAlgorithm 
 	jitter_width::Float32 = 1.0
 	clamped_portion::Float32 = 0.0
 end
+"""
+	QuasirandomJitter(; jitter_width = 1.0)
+
+A jitter algorithm that uses a quasirandom (van der Corput) distribution
+weighted by the data's pdf to jitter the data points.
+"""
 Base.@kwdef struct QuasirandomJitter <: JitterAlgorithm 
 	jitter_width::Float32 = 1.0
 	clamped_portion::Float32 = 0.0
@@ -38,15 +64,11 @@ function calculate!(buffer::AbstractVector{<: Point2}, alg::JitterAlgorithm, pos
 		group = xs .== x_val
 		@views buffer[group] .= Point2f.(xs[group] .+ create_jitter_array(ys[group], alg) .* markersize, ys[group])
 	end
-	
 end
 
 
 
-# Allow to globally set jitter RNG for testing
-# A bit of a lazy solution, but it doesn't seem to be desirably to
-# pass the RNG through the plotting command
-const JITTER_RNG = Ref{Random.AbstractRNG}(Random.GLOBAL_RNG)
+
 
 # quick custom function for jitter
 jitter_uniform(n) = jitter_uniform(JITTER_RNG[],n)
