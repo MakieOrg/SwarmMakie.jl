@@ -95,17 +95,6 @@ function Makie.plot!(plot::Beeswarm)
     end
     notify(final_widths)
 
-    #= 
-    
-    BUG: For some reason, the recipe is not respecting inputs for these new kwargs I defined.
-    I am sure I am doing something wrong with the recipe, but as of now, I have made the
-    kwarg values constant.
-
-    =#
-
-    gutter = .4 
-    gutter_threshold = .55
-
     # set up buffers
     point_buffer = Observable{Vector{Point2f}}(zeros(Point2f, length(positions[])))
     pixelspace_point_buffer = Observable{Vector{Point2f}}(zeros(Point2f, length(positions[])))
@@ -128,7 +117,7 @@ function Makie.plot!(plot::Beeswarm)
         # Method to create a gutter when a gutter is defined
         # NOTE: Maybe turn this into a helper function?
 
-        if !isnothing(gutter)
+        if !isnothing(plot.attributes[:gutter].val)
             # Get category labels
             groups = [pt[1] for pt in positions] 
 
@@ -146,17 +135,17 @@ function Makie.plot!(plot::Beeswarm)
                 ending = findlast(==(group), groups)
 
                 # Calculate a gutter threshold
-                gutter_threshold_count = (ending - starting) * gutter_threshold
+                gutter_threshold_count = (ending - starting) * plot.attributes[:gutter_threshold].val
                 gutter_pts = 0
                 for pt in point_buffer.val[starting:ending]
                     # Check if a point values between a acceptable range
-                    if pt[1] > (group + gutter) || pt[1] < (group - gutter)
+                        if pt[1] > (group + plot.attributes[:gutter].val) || pt[1] < (group - plot.attributes[:gutter].val)
                         if pt[1] < 0
                             # Left side of the gutter
-                            point_buffer.val[idx] = Point2f(group - gutter, pt[2])
+                            point_buffer.val[idx] = Point2f(group - plot.attributes[:gutter].val, pt[2])
                         else
                             # Right side of the gutter
-                            point_buffer.val[idx] = Point2f(group + gutter, pt[2])
+                            point_buffer.val[idx] = Point2f(group + plot.attributes[:gutter].val, pt[2])
                         end
                         gutter_pts += 1
                     end
@@ -179,6 +168,8 @@ function Makie.plot!(plot::Beeswarm)
     pop!(attrs, :algorithm)
     pop!(attrs, :side)
     pop!(attrs, :direction)
+    pop!(attrs, :gutter)
+    pop!(attrs, :gutter_threshold)
     # pop!(attrs, :space)
     attrs[:space] = :data
     attrs[:markerspace] = :pixel
