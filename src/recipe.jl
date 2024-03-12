@@ -18,6 +18,8 @@ Specific attributes to `beeswarm` are:
 - `algorithm = SimpleBeeswarm()`: The algorithm used to lay out the beeswarm markers.
 - `side = :both`: The side towards which markers should extend.  Can be `:left`, `:right`, or both.  
 - `direction = :y`: Controls the direction of the beeswarm.  Can be `:y` (vertical) or `:x` (horizontal).
+- `gutter = nothing`: Creates a gutter of a desired size around each category.
+- `gutter_threshold = .5`: Emit a warning of the number of points added to a gutter per category exceeds the threshold.
 
 ## Arguments
 $(Makie.ATTRIBUTES)
@@ -35,6 +37,8 @@ beeswarm(ones(100), randn(100); color = rand(RGBf, 100))
             algorithm = SimpleBeeswarm(),
             side = :both,
             direction = :y,
+            gutter = nothing,
+            gutter_threshold = .5,
         ),
         default_theme(scene, Scatter),
     )
@@ -91,7 +95,17 @@ function Makie.plot!(plot::Beeswarm)
     end
     notify(final_widths)
 
+    #= 
     
+    BUG: For some reason, the recipe is not respecting inputs for these new kwargs I defined.
+    I am sure I am doing something wrong with the recipe, but as of now, I have made the
+    kwarg values constant.
+
+    =#
+
+    gutter = .4 
+    gutter_threshold = .55
+
     # set up buffers
     point_buffer = Observable{Vector{Point2f}}(zeros(Point2f, length(positions[])))
     pixelspace_point_buffer = Observable{Vector{Point2f}}(zeros(Point2f, length(positions[])))
@@ -110,6 +124,53 @@ function Makie.plot!(plot::Beeswarm)
         calculate!(point_buffer.val, algorithm, direction == :y ? pixelspace_point_buffer.val : reverse.(pixelspace_point_buffer.val), markersize, side)
         # Project the beeswarm back to data space and store it, again, in `point_buffer.val`
         point_buffer.val .= Point2f.(Makie.project.((scene.camera,), :pixel, :data, direction == :y ? (point_buffer.val) : reverse.(point_buffer.val)))
+
+        # Method to create a gutter when a gutter is defined
+        # NOTE: Maybe turn this into a helper function?
+
+        if !isnothing(gutter)
+            # Get category labels
+            groups = [pt[1] for pt in positions] 
+
+            # Sort positions before iterating through values
+            sort!([positions], by = x -> x[1])
+
+            # Find all points belonging to all unique categories
+            idx = 1
+            for group in unique(groups) |> sort
+                
+                # Starting index for the group
+                starting = findfirst(==(group), groups)
+
+                # Last index for the group
+                ending = findlast(==(group), groups)
+
+                # Calculate a gutter threshold
+                gutter_threshold_count = (ending - starting) * gutter_threshold
+                gutter_pts = 0
+                for pt in point_buffer.val[starting:ending]
+                    # Check if a point values between a acceptable range
+                    if pt[1] > (group + gutter) || pt[1] < (group - gutter)
+                        if pt[1] < 0
+                            # Left side of the gutter
+                            point_buffer.val[idx] = Point2f(group - gutter, pt[2])
+                        else
+                            # Right side of the gutter
+                            point_buffer.val[idx] = Point2f(group + gutter, pt[2])
+                        end
+                        gutter_pts += 1
+                    end
+                    idx += 1
+                end
+
+                # Emit warning if too many points fall into the gutter
+                if gutter_threshold_count < gutter_pts
+                    @warn "Gutter threshold exceeded for category $group; consider adjusting gutter size"
+                end
+            end
+        end
+
+
         # Finally, update the scatter plot
         notify(point_buffer)
     end
