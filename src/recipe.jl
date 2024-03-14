@@ -99,7 +99,7 @@ function Makie.plot!(plot::Beeswarm)
     point_buffer = Observable{Vector{Point2f}}(zeros(Point2f, length(positions[])))
     pixelspace_point_buffer = Observable{Vector{Point2f}}(zeros(Point2f, length(positions[])))
     # when the positions change, we must update the buffer arrays
-    onany(plot, plot.converted[1], plot.algorithm, plot.color, plot.markersize, plot.side, plot.direction, should_update_based_on_zoom) do positions, algorithm, colors, markersize, side, direction, _
+    onany(plot, plot.converted[1], plot.algorithm, plot.color, plot.markersize, plot.side, plot.direction, plot.gutter, plot.gutter_threshold, should_update_based_on_zoom) do positions, algorithm, colors, markersize, side, direction, gutter, gutter_threshold, _
         @assert side in (:both, :left, :right) "side should be one of :both, :left, or :right, got $(side)"
         @assert direction in (:x, :y) "direction should be one of :x or :y, got $(direction)"
         if length(positions) != length(point_buffer[])
@@ -117,35 +117,30 @@ function Makie.plot!(plot::Beeswarm)
         # Method to create a gutter when a gutter is defined
         # NOTE: Maybe turn this into a helper function?
 
-        if !isnothing(plot.attributes[:gutter].val)
-            # Get category labels
-            groups = [pt[1] for pt in positions] 
-
-            # Sort positions before iterating through values
-            sort!([positions], by = x -> x[1])
+        if !isnothing(gutter)
+            # This gets the x coordinate of all points
+            xs = first.(positions)
 
             # Find all points belonging to all unique categories
+            # by finding the unique x values
             idx = 1
-            for group in unique(groups) |> sort
+            for group in unique(xs)
                 
                 # Starting index for the group
-                starting = findfirst(==(group), groups)
-
-                # Last index for the group
-                ending = findlast(==(group), groups)
+                group_indices = findall(==(group), xs)
 
                 # Calculate a gutter threshold
-                gutter_threshold_count = (ending - starting) * plot.attributes[:gutter_threshold].val
+                gutter_threshold_count = length(group_indices) * gutter_threshold
                 gutter_pts = 0
-                for pt in point_buffer.val[starting:ending]
+                for pt in view(point_buffer.val, group_indices)
                     # Check if a point values between a acceptable range
-                        if pt[1] > (group + plot.attributes[:gutter].val) || pt[1] < (group - plot.attributes[:gutter].val)
+                        if pt[1] > (group + gutter) || pt[1] < (group - gutter)
                         if pt[1] < 0
                             # Left side of the gutter
-                            point_buffer.val[idx] = Point2f(group - plot.attributes[:gutter].val, pt[2])
+                            point_buffer.val[idx] = Point2f(group - gutter, pt[2])
                         else
                             # Right side of the gutter
-                            point_buffer.val[idx] = Point2f(group + plot.attributes[:gutter].val, pt[2])
+                            point_buffer.val[idx] = Point2f(group + gutter, pt[2])
                         end
                         gutter_pts += 1
                     end
@@ -154,7 +149,10 @@ function Makie.plot!(plot::Beeswarm)
 
                 # Emit warning if too many points fall into the gutter
                 if gutter_threshold_count < gutter_pts
-                    @warn "Gutter threshold exceeded for category $group; consider adjusting gutter size"
+                    @warn """
+                    Gutter threshold exceeded for category $(group); 
+                    Consider adjusting the `markersize` for the plot to shrink markers, or the gutter size by `gutter`. 
+                    """
                 end
             end
         end
