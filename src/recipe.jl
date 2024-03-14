@@ -119,7 +119,7 @@ function Makie.plot!(plot::Beeswarm)
 
         if !isnothing(gutter)
             # This gets the x coordinate of all points
-            xs = first.(positions)
+            xs = direction == :y ? first.(positions) : last.(positions)
 
             # Find all points belonging to all unique categories
             # by finding the unique x values
@@ -132,15 +132,17 @@ function Makie.plot!(plot::Beeswarm)
                 # Calculate a gutter threshold
                 gutter_threshold_count = length(group_indices) * gutter_threshold
                 gutter_pts = 0
-                for pt in view(point_buffer.val, group_indices)
+                for idx in group_indices
+                    x = xs[idx]
+                    pt = point_buffer.val[pt]
                     # Check if a point values between a acceptable range
-                        if pt[1] > (group + gutter) || pt[1] < (group - gutter)
-                        if pt[1] < 0
+                        if x > (group + gutter) || x < (group - gutter)
+                        if x < 0
                             # Left side of the gutter
-                            point_buffer.val[idx] = Point2f(group - gutter, pt[2])
+                            point_buffer.val[idx] = if direction == :y ? Point2f(group - gutter, pt[2]) : Point2f(pt[1], group - gutter)
                         else
                             # Right side of the gutter
-                            point_buffer.val[idx] = Point2f(group + gutter, pt[2])
+                            point_buffer.val[idx] = if direction == :y ? Point2f(group + gutter, pt[2]) : Point2f(pt[1], group + gutter)
                         end
                         gutter_pts += 1
                     end
