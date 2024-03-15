@@ -41,6 +41,14 @@ buffer = deepcopy(pixel_points)
             @test overlap_pixels/nonwhite_pixels < 0.07 # 7% overlap should be our ideal for this sort of data
         end
     end
+    @testset "Gutters" begin
+        f, a, p = beeswarm(rand(1:3, 300), randn(300); color = rand(RGBAf, 300), markersize = 20, algorithm = SimpleBeeswarm())
+        @test_warn "Warning: Gutter threshold exceded" p.gutter = 0.5
+        f, a, p = beeswarm(rand(1:3, 300), randn(300); direction = :x, color = rand(RGBAf, 300), markersize = 20, algorithm = SimpleBeeswarm())
+        @test_warn "Warning: Gutter threshold exceded" p.gutter = 0.5
+        f, a, p = beeswarm(rand(1:3, 300), randn(300); direction = :y, color = rand(RGBAf, 300), markersize = 9, algorithm = SimpleBeeswarm())
+        @test_nowarn p.gutter = 0.5
+    end
 end
 
 # TODO: 
