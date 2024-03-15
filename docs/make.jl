@@ -73,6 +73,7 @@ makedocs(;
     pages=[
         "Introduction" => "introduction.md",
         "Algorithms" => "algorithms.md",
+        "Gutters" => "gutters.md",
         "Examples" => "examples.md",
         "API Reference" => "api.md",
         "Source code" => literate_pages,

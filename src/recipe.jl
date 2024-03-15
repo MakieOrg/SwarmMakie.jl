@@ -18,7 +18,7 @@ Specific attributes to `beeswarm` are:
 - `algorithm = SimpleBeeswarm()`: The algorithm used to lay out the beeswarm markers.
 - `side = :both`: The side towards which markers should extend.  Can be `:left`, `:right`, or both.  
 - `direction = :y`: Controls the direction of the beeswarm.  Can be `:y` (vertical) or `:x` (horizontal).
-- `gutter = nothing`: Creates a gutter of a desired size around each category.
+- `gutter = nothing`: Creates a gutter of a desired size around each category.  Gutter size is always in data space.
 - `gutter_threshold = .5`: Emit a warning of the number of points added to a gutter per category exceeds the threshold.
 
 ## Arguments
