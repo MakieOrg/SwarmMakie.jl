@@ -118,45 +118,7 @@ function Makie.plot!(plot::Beeswarm)
         # NOTE: Maybe turn this into a helper function?
 
         if !isnothing(gutter)
-            # This gets the x coordinate of all points
-            xs = direction == :y ? first.(positions) : last.(positions)
-
-            # Find all points belonging to all unique categories
-            # by finding the unique x values
-            idx = 1
-            for group in unique(xs)
-                
-                # Starting index for the group
-                group_indices = findall(==(group), xs)
-
-                # Calculate a gutter threshold
-                gutter_threshold_count = length(group_indices) * gutter_threshold
-                gutter_pts = 0
-                for idx in group_indices
-                    x = xs[idx]
-                    pt = point_buffer.val[pt]
-                    # Check if a point values between a acceptable range
-                        if x > (group + gutter) || x < (group - gutter)
-                        if x < 0
-                            # Left side of the gutter
-                            point_buffer.val[idx] = if direction == :y ? Point2f(group - gutter, pt[2]) : Point2f(pt[1], group - gutter)
-                        else
-                            # Right side of the gutter
-                            point_buffer.val[idx] = if direction == :y ? Point2f(group + gutter, pt[2]) : Point2f(pt[1], group + gutter)
-                        end
-                        gutter_pts += 1
-                    end
-                    idx += 1
-                end
-
-                # Emit warning if too many points fall into the gutter
-                if gutter_threshold_count < gutter_pts
-                    @warn """
-                    Gutter threshold exceeded for category $(group); 
-                    Consider adjusting the `markersize` for the plot to shrink markers, or the gutter size by `gutter`. 
-                    """
-                end
-            end
+            gutterize!(point_buffer, algorithm, positions, direction, gutter, gutter_threshold)
         end
 
 
@@ -183,3 +145,46 @@ function Makie.plot!(plot::Beeswarm)
     return
 end
 
+# This function implements "gutters", or regions around each category where points are not allowed to go.
+function gutterize!(point_buffer, algorithm::BeeswarmAlgorithm, positions, direction, gutter, gutter_threshold)
+
+    # This gets the x coordinate of all points
+    xs = first.(positions)
+
+    # Find all points belonging to all unique categories
+    # by finding the unique x values
+    idx = 1
+    for group in unique(xs)
+        
+        # Starting index for the group
+        group_indices = findall(==(group), xs)
+
+        # Calculate a gutter threshold
+        gutter_threshold_count = length(group_indices) * gutter_threshold
+        gutter_pts = 0
+        for idx in group_indices
+            pt = point_buffer.val[idx]
+            x = direction == :y ? pt[1] : pt[2]
+            # Check if a point values between a acceptable range
+            if x < (group - gutter)
+                # Left side of the gutter
+                point_buffer.val[idx] = direction == :y ? Point2f(group - gutter, pt[2]) : Point2f(pt[1], group - gutter)
+                gutter_pts += 1
+            elseif x > (group + gutter)
+                # Right side of the gutter
+                point_buffer.val[idx] = direction == :y ? Point2f(group + gutter, pt[2]) : Point2f(pt[1], group + gutter)
+                gutter_pts += 1
+            end
+            idx += 1
+        end
+
+        # Emit warning if too many points fall into the gutter
+        if gutter_threshold_count < gutter_pts
+            @warn """
+            Gutter threshold exceeded for category $(group).  
+            $(round(gutter_pts/length(group_indices), digits = 2))% of points were placed in the gutter.
+            Consider adjusting the `markersize` for the plot to shrink markers, or the gutter size by `gutter`. 
+            """
+        end
+    end
+end
