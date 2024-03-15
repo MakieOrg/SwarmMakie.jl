@@ -18,6 +18,8 @@ Specific attributes to `beeswarm` are:
 - `algorithm = SimpleBeeswarm()`: The algorithm used to lay out the beeswarm markers.
 - `side = :both`: The side towards which markers should extend.  Can be `:left`, `:right`, or both.  
 - `direction = :y`: Controls the direction of the beeswarm.  Can be `:y` (vertical) or `:x` (horizontal).
+- `gutter = nothing`: Creates a gutter of a desired size around each category.  Gutter size is always in data space.
+- `gutter_threshold = .5`: Emit a warning of the number of points added to a gutter per category exceeds the threshold.
 
 ## Arguments
 $(Makie.ATTRIBUTES)
@@ -35,6 +37,8 @@ beeswarm(ones(100), randn(100); color = rand(RGBf, 100))
             algorithm = SimpleBeeswarm(),
             side = :both,
             direction = :y,
+            gutter = nothing,
+            gutter_threshold = .5,
         ),
         default_theme(scene, Scatter),
     )
@@ -91,12 +95,11 @@ function Makie.plot!(plot::Beeswarm)
     end
     notify(final_widths)
 
-    
     # set up buffers
     point_buffer = Observable{Vector{Point2f}}(zeros(Point2f, length(positions[])))
     pixelspace_point_buffer = Observable{Vector{Point2f}}(zeros(Point2f, length(positions[])))
     # when the positions change, we must update the buffer arrays
-    onany(plot, plot.converted[1], plot.algorithm, plot.color, plot.markersize, plot.side, plot.direction, should_update_based_on_zoom) do positions, algorithm, colors, markersize, side, direction, _
+    onany(plot, plot.converted[1], plot.algorithm, plot.color, plot.markersize, plot.side, plot.direction, plot.gutter, plot.gutter_threshold, should_update_based_on_zoom) do positions, algorithm, colors, markersize, side, direction, gutter, gutter_threshold, _
         @assert side in (:both, :left, :right) "side should be one of :both, :left, or :right, got $(side)"
         @assert direction in (:x, :y) "direction should be one of :x or :y, got $(direction)"
         if length(positions) != length(point_buffer[])
@@ -110,6 +113,15 @@ function Makie.plot!(plot::Beeswarm)
         calculate!(point_buffer.val, algorithm, direction == :y ? pixelspace_point_buffer.val : reverse.(pixelspace_point_buffer.val), markersize, side)
         # Project the beeswarm back to data space and store it, again, in `point_buffer.val`
         point_buffer.val .= Point2f.(Makie.project.((scene.camera,), :pixel, :data, direction == :y ? (point_buffer.val) : reverse.(point_buffer.val)))
+
+        # Method to create a gutter when a gutter is defined
+        # NOTE: Maybe turn this into a helper function?
+
+        if !isnothing(gutter)
+            gutterize!(point_buffer, algorithm, positions, direction, gutter, gutter_threshold)
+        end
+
+
         # Finally, update the scatter plot
         notify(point_buffer)
     end
@@ -118,6 +130,8 @@ function Makie.plot!(plot::Beeswarm)
     pop!(attrs, :algorithm)
     pop!(attrs, :side)
     pop!(attrs, :direction)
+    pop!(attrs, :gutter)
+    pop!(attrs, :gutter_threshold)
     # pop!(attrs, :space)
     attrs[:space] = :data
     attrs[:markerspace] = :pixel
@@ -131,3 +145,46 @@ function Makie.plot!(plot::Beeswarm)
     return
 end
 
+# This function implements "gutters", or regions around each category where points are not allowed to go.
+function gutterize!(point_buffer, algorithm::BeeswarmAlgorithm, positions, direction, gutter, gutter_threshold)
+
+    # This gets the x coordinate of all points
+    xs = first.(positions)
+
+    # Find all points belonging to all unique categories
+    # by finding the unique x values
+    idx = 1
+    for group in unique(xs)
+        
+        # Starting index for the group
+        group_indices = findall(==(group), xs)
+
+        # Calculate a gutter threshold
+        gutter_threshold_count = length(group_indices) * gutter_threshold
+        gutter_pts = 0
+        for idx in group_indices
+            pt = point_buffer.val[idx]
+            x = direction == :y ? pt[1] : pt[2]
+            # Check if a point values between a acceptable range
+            if x < (group - gutter)
+                # Left side of the gutter
+                point_buffer.val[idx] = direction == :y ? Point2f(group - gutter, pt[2]) : Point2f(pt[1], group - gutter)
+                gutter_pts += 1
+            elseif x > (group + gutter)
+                # Right side of the gutter
+                point_buffer.val[idx] = direction == :y ? Point2f(group + gutter, pt[2]) : Point2f(pt[1], group + gutter)
+                gutter_pts += 1
+            end
+            idx += 1
+        end
+
+        # Emit warning if too many points fall into the gutter
+        if gutter_threshold_count < gutter_pts
+            @warn """
+            Gutter threshold exceeded for category $(group).  
+            $(round(gutter_pts/length(group_indices), digits = 2))% of points were placed in the gutter.
+            Consider adjusting the `markersize` for the plot to shrink markers, or the gutter size by `gutter`. 
+            """
+        end
+    end
+end
