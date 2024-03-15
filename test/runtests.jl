@@ -45,11 +45,11 @@ buffer = deepcopy(pixel_points)
         f, a, p = beeswarm(rand(1:3, 300), randn(300); color = rand(RGBAf, 300), markersize = 20, algorithm = SimpleBeeswarm())
         Makie.update_state_before_display!(f)        
         Makie.update_state_before_display!(f)
-        @test_warn "Warning: Gutter threshold exceeded" p.gutter = 0.5
+        @test_warn "Gutter threshold exceeded" p.gutter = 0.5
         f, a, p = beeswarm(rand(1:3, 300), randn(300); direction = :x, color = rand(RGBAf, 300), markersize = 20, algorithm = SimpleBeeswarm())
         Makie.update_state_before_display!(f)        
         Makie.update_state_before_display!(f)
-        @test_warn "Warning: Gutter threshold exceeded" p.gutter = 0.5
+        @test_warn "Gutter threshold exceeded" p.gutter = 0.5
         f, a, p = beeswarm(rand(1:3, 300), randn(300); direction = :y, color = rand(RGBAf, 300), markersize = 9, algorithm = SimpleBeeswarm())
         Makie.update_state_before_display!(f)        
         Makie.update_state_before_display!(f)
