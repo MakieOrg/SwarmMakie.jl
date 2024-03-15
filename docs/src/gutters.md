@@ -24,7 +24,7 @@ p.gutter = 0.5
 ```
 Note the warning messages printed here!  These can be helpful to diagnose when your data is moving too far out of the gutter, but you can turn them off by passing `gutter_threshold = false` or setting the `gutter_threshold` to a higher value (must be an `Int` and >0).
 ```@example gutters
-fig
+f
 ```
 
 Gutters work with all beeswarm plots.
