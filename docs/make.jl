@@ -84,4 +84,5 @@ makedocs(;
 deploydocs(;
     repo="github.com/asinghvi17/SwarmMakie.jl",
     devbranch="main",
+    push_preview = true,
 )
