@@ -67,7 +67,7 @@ function Makie.data_limits(bs::Beeswarm)
         gutter = Makie.to_value(bs.gutter)
         xmin, xmax = extrema(first.(bs.converted[1][]))
         ymin, ymax = extrema(last.(bs.converted[1][]))
-        return Rect3f(xmin - gutter, ymin, 0, (xmax - xmin) + gutter, (ymax - ymin), 0)
+        return Rect3f(Point3f(xmin - gutter, ymin, 0), Vec3f((xmax - xmin) + gutter, (ymax - ymin), 0))
     end
 end
 
