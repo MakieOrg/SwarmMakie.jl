@@ -60,7 +60,16 @@ function calculate!(buffer::AbstractVector{<: Point2}, alg::NoBeeswarm, position
     return
 end
 
-Makie.data_limits(bs::Beeswarm) = Makie.data_limits(bs.plots[1])
+function Makie.data_limits(bs::Beeswarm)
+    if isnothing(Makie.to_value(bs.gutter))
+        return Makie.data_limits(bs.plots[1])
+    else # we have a gutter
+        gutter = Makie.to_value(bs.gutter)
+        xmin, xmax = extrema(first.(bs.converted[1][]))
+        ymin, ymax = extrema(last.(bs.converted[1][]))
+        return Rect3f(xmin - gutter, ymin, 0, (xmax - xmin) + gutter, (ymax - ymin), 0)
+    end
+end
 
 function Makie.plot!(plot::Beeswarm)
     positions = plot.converted[1] # being PointBased, it should always receive a vector of Point2
