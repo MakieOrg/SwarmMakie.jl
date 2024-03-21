@@ -2,7 +2,7 @@ using SwarmMakie
 using Documenter, DocumenterVitepress, Literate
 using CairoMakie
 
-CairoMakie.activate!(type="svg", pt_per_unit = 0.75)
+CairoMakie.activate!(type="svg", pt_per_unit = 1)
 
 include("documenter_figure_block.jl")
 
