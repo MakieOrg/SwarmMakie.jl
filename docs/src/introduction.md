@@ -14,7 +14,7 @@ Being a Makie recipe, you can also use this with AlgebraOfGraphics.
 
 Here's a quick example to get you started:
 
-```@example quickstart
+```@figure quickstart
 using CairoMakie, SwarmMakie
 xs = rand(1:3, 40)
 ys = randn(40)
@@ -27,7 +27,7 @@ f
 
 As a Makie recipe, `beeswarm` also composes with AlgebraOfGraphics!
 
-```@example aog
+```@figure aog
 using AlgebraOfGraphics, CairoMakie, SwarmMakie
 using RDatasets, DataFrames
 iris = dataset("datasets", "iris")

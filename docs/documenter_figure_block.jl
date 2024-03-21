@@ -68,7 +68,7 @@ end
 
 function transform_figure_code(code::String; backend::Symbol = :CairoMakie, type=backend==:CairoMakie ? "svg" : "png", kwargs...)
     backend in (:CairoMakie, :GLMakie, :WGLMakie, :RPRMakie) || error("Invalid backend $backend")
-    mimetype = _mime_from_format(fmt, backend)
+    mimetype = _mime_from_format(type, backend)
     # All this code is within the Documenter runner module's scope, so we have to go up one level to go to Main.
     # I am wondering if, in theory, we should actually just access Main directly?
     """
@@ -81,7 +81,7 @@ function transform_figure_code(code::String; backend::Symbol = :CairoMakie, type
     if var"#result" isa Makie.FigureLike # hide
         MakieDocsHelpers4.AsMIME(MIME"$mimetype"(), var"#result") # hide
     else # hide
-        var"result" # hide
+        var"#result" # hide
     end # hide
     """
 end
