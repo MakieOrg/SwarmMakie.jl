@@ -74,7 +74,7 @@ function transform_figure_code(code::String; backend::Symbol = :CairoMakie, type
     """
     import $backend # hide
     $(backend).activate!() # hide
-    import ..MakieDocsHelpers4 # hide
+    import Main.MakieDocsHelpers4 # hide
     var"#result" = begin # hide
     $code
     end # hide
