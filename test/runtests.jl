@@ -1,6 +1,9 @@
 using SwarmMakie, Makie, CairoMakie
 using Makie.Colors
 using Test
+using Random
+
+Random.seed!(123)
 
 colors = RGBf.(LinRange(0, 1, 1000), 0, 0)
 
