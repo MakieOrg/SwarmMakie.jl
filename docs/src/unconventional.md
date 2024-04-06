@@ -173,7 +173,7 @@ language_marker_dict = Dict(
     [key => read(download(language_logo_url(key)), String) |> pngify for key in ("c", "fortran", "go", "java", "javascript", "julia", "matlab", "python", "r", "rust")]
 )
 
-language_marker_dict["octave"] = FileIO.load(File{format"PNG"}(download("https://upload.wikimedia.org/wikipedia/commons/thumb/6/6a/Gnu-octave-logo.svg/2048px-Gnu-octave-logo.svg.png"))) .|> ARGB32  
+language_marker_dict["octave"] = FileIO.load(File{format"PNG"}(download("https://upload.wikimedia.org/wikipedia/commons/thumb/6/6a/Gnu-octave-logo.svg/2048px-Gnu-octave-logo.svg.png"))) .|> Makie.ARGB32  
 
 language_marker_dict["luajit"] = read(download(language_logo_url("lua")), String) |> pngify 
 language_marker_dict["mathematica"] = read(download("https://upload.wikimedia.org/wikipedia/commons/2/20/Mathematica_Logo.svg"), String) |> pngify 
