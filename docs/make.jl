@@ -79,8 +79,6 @@ makedocs(;
             "Nonlinear scales" => "examples/scales.md",
             "Unconventional use" => "examples/unconventional.md"
         ],
-        "Log scales" => "scales.md",
-        "Unconventional use" => "unconventional.md",
         "API Reference" => "api.md",
         "Source code" => literate_pages,
     ],
