@@ -61,9 +61,9 @@ for lang in benchmarks[!, :language]
 end
 
 # Add the geometric means back into the benchmarks dataframe
-langmean = DataFrame(language = langs, geomean = means, priority = priorities)
-benchmarks.geomean = (x -> langmean.geomean[findfirst(==(x), langmean.language)]).(benchmarks.language)
-benchmarks.priority = (x -> langmean.priority[findfirst(==(x), langmean.language)]).(benchmarks.language)
+langmean = Dict(langs .=> tuple.(means, priorities))
+benchmarks.geomean = first.(getindex.((langmean,), benchmarks.language))
+benchmarks.priority = last.(getindex.((langmean,), benchmarks.language))
 
 # Put C first, Julia second, and sort the rest by geometric mean
 sort!(benchmarks, [:priority, :geomean]);
