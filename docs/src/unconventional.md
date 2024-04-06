@@ -11,7 +11,7 @@ using Base.MathConstants
 using CSV
 using DataFrames
 using AlgebraOfGraphics, SwarmMakie, CairoMakie
-using StatsBase
+using StatsBase, CategoricalArrays
 
 # Load benchmark data from file
 benchmarks =
@@ -67,7 +67,6 @@ benchmarks.priority = last.(getindex.((langmean,), benchmarks.language))
 
 # Put C first, Julia second, and sort the rest by geometric mean
 sort!(benchmarks, [:priority, :geomean]);
-sort!(langmean, [:priority, :geomean]);
 
 langs = CategoricalArray(benchmarks.language)
 bms = CategoricalArray(benchmarks.benchmark)
@@ -75,16 +74,26 @@ bms = CategoricalArray(benchmarks.benchmark)
 f, a, p = beeswarm(
     langs.refs, benchmarks.normtime;
     color = bms.refs,
-    colormap = :Set1_8,
+    colormap = :Set2_8,
     # markersize = 5,
     marker = Circle,
     axis = (;
         yscale = log10,
-        xticklabelrotation = pi/4, ylabel = "Time relative to C",
+        xticklabelrotation = 0, 
+        xticklabelsize = 12,
+        xticksvisible = false,
+        topspinecolor = :gray,
+        bottomspinecolor = :gray,
+        leftspinecolor = :gray,
+        rightspinecolor = :gray,
+        ylabel = "Time relative to C",
         xticks = (1:length(unique(langs)), langs.pool.levels),
         xminorticks = IntervalsBetween(2),
         xgridvisible = false,
         xminorgridvisible = true,
+        xminorgridcolor = (:black, 0.2),
+        yminorticks = IntervalsBetween(5),
+        yminorgridvisible = true,
     ),
     figure = (; size = (1000, 618),)
 )
@@ -94,5 +103,43 @@ leg = Legend(f[1, 2],
     "Benchmark";
 )
 f
+
 ```
 
+
+## Benchmarks colored by language
+
+```@example julia-benchmark
+
+f, a, p = beeswarm(
+    bms.refs, benchmarks.normtime;
+    color = langs.refs,
+    colormap = Makie.Colors.distinguishable_colors(13),#:Set1_9,
+    # markersize = 5,
+    marker = Circle,
+    axis = (;
+        yscale = log10,
+        xticklabelrotation = 0, 
+        xticklabelsize = 12,
+        xticksvisible = false,
+        topspinecolor = :gray,
+        bottomspinecolor = :gray,
+        leftspinecolor = :gray,
+        rightspinecolor = :gray,
+        ylabel = "Time relative to C",
+        xticks = (1:length(unique(bms)), bms.pool.levels),
+        xminorticks = IntervalsBetween(2),
+        xgridvisible = false,
+        xminorgridvisible = true,
+        xminorgridcolor = (:black, 0.2),
+        yminorticks = IntervalsBetween(5),
+        yminorgridvisible = true,
+    ),
+    figure = (; size = (1000, 618),)
+)
+leg = Legend(f[1, 2],
+    [MarkerElement(; color = p.colormap[][i], marker = :circle, markersize = 11) for i in 1:length(langs.pool.levels)],
+    langs.pool.levels,
+    "Benchmark";
+)
+f
