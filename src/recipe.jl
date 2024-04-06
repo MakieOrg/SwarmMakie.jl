@@ -115,6 +115,7 @@ function Makie.plot!(plot::Beeswarm)
         calculate!(point_buffer.val, algorithm, direction == :y ? pixelspace_point_buffer.val : reverse.(pixelspace_point_buffer.val), markersize, side)
         # Project the beeswarm back to data space and store it, again, in `point_buffer.val`
         point_buffer.val .= Point2f.(Makie.project.((scene.camera,), :pixel, :data, direction == :y ? (point_buffer.val) : reverse.(point_buffer.val)))
+        point_buffer.val .= Makie.apply_transform(Makie.inverse_transform(tfunc), point_buffer.val, :data)
 
         # Method to create a gutter when a gutter is defined
         # NOTE: Maybe turn this into a helper function?
