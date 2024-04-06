@@ -59,7 +59,7 @@ withenv("JULIA_DEBUG" => "Literate") do # allow Literate debug output to escape 
 end
 
 # As a special case, literatify the examples.jl file in docs/src to Documenter markdown
-Literate.markdown(joinpath(@__DIR__, "src", "examples.jl"), joinpath(@__DIR__, "src"); flavor = Literate.DocumenterFlavor())
+Literate.markdown(joinpath(@__DIR__, "src", "examples", "examples.jl"), joinpath(@__DIR__, "src", "examples"); flavor = Literate.DocumenterFlavor())
 
 makedocs(;
     modules=[SwarmMakie],
@@ -74,7 +74,11 @@ makedocs(;
         "Introduction" => "introduction.md",
         "Algorithms" => "algorithms.md",
         "Gutters" => "gutters.md",
-        "Examples" => "examples.md",
+        "Examples" => [
+            "examples/examples.md",
+            "Nonlinear scales" => "examples/scales.md",
+            "Unconventional use" => "examples/unconventional.md"
+        ],
         "Log scales" => "scales.md",
         "Unconventional use" => "unconventional.md",
         "API Reference" => "api.md",

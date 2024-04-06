@@ -6,4 +6,4 @@
 */node_modules/*
 .DS_Store
 
-docs/src/examples.md
+docs/src/examples/examples.md
