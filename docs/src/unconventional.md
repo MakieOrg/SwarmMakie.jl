@@ -143,3 +143,70 @@ leg = Legend(f[1, 2],
     "Benchmark";
 )
 f
+```
+
+## Custom markers
+```@example julia-benchmark
+# Get logos for programming languages
+
+using Rsvg
+using CairoMakie
+using CairoMakie.Cairo, CairoMakie.FileIO
+
+function pngify(input_data::AbstractString)
+    r = Rsvg.handle_new_from_data(String(input_data));
+    Rsvg.handle_set_dpi(r, 2.0)
+    d = Rsvg.handle_get_dimensions(r);
+    img = fill(ARGB32(0, 0, 0, 0), d.width * 4, d.height * 4)
+    # create an image surface to draw onto the image
+    surf = Cairo.CairoImageSurface(img)
+    ctx = Cairo.CairoContext(surf);
+    Cairo.scale(ctx, 4, 4)
+    Rsvg.handle_render_cairo(ctx,r);
+    return permutedims(img)
+end
+
+
+language_logo_url(lang::String) = "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/$(lowercase(lang))/$(lowercase(lang))-original.svg"
+
+language_marker_dict = Dict(
+    [key => read(download(language_logo_url(key)), String) |> pngify for key in ("c", "fortran", "go", "java", "javascript", "julia", "matlab", "python", "r", "rust")]
+)
+
+language_marker_dict["octave"] = FileIO.load(File{format"PNG"}(download("https://upload.wikimedia.org/wikipedia/commons/thumb/6/6a/Gnu-octave-logo.svg/2048px-Gnu-octave-logo.svg.png"))) .|> ARGB32  
+
+language_marker_dict["luajit"] = read(download(language_logo_url("lua")), String) |> pngify 
+language_marker_dict["mathematica"] = read(download("https://upload.wikimedia.org/wikipedia/commons/2/20/Mathematica_Logo.svg"), String) |> pngify 
+
+
+f, a, p = beeswarm(
+    bms.refs, benchmarks.normtime;
+    marker = getindex.((language_marker_dict,),lowercase.(benchmarks.language)),
+    markersize = 11,
+    axis = (;
+        yscale = log10,
+        xticklabelrotation = 0, 
+        xticklabelsize = 12,
+        xticksvisible = false,
+        topspinecolor = :gray,
+        bottomspinecolor = :gray,
+        leftspinecolor = :gray,
+        rightspinecolor = :gray,
+        ylabel = "Time relative to C",
+        xticks = (1:length(unique(bms)), bms.pool.levels),
+        xminorticks = IntervalsBetween(2),
+        xgridvisible = false,
+        xminorgridvisible = true,
+        xminorgridcolor = (:black, 0.2),
+        yminorticks = IntervalsBetween(5),
+        yminorgridvisible = true,
+    ),
+    figure = (; size = (1000, 618),)
+)
+leg = Legend(f[1, 2],
+    [MarkerElement(; marker = language_marker_dict[lowercase(lang)], markersize = 15) for lang in langs.pool.levels],
+    langs.pool.levels,
+    "Language";
+)
+f
+```
