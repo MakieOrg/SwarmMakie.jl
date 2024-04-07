@@ -27,7 +27,12 @@ function calculate!(buffer::AbstractVector{<: Point2}, alg::SimpleBeeswarm, posi
 
     for x_val in unique(xs)
         group = findall(==(x_val), xs)
-        xs[group] .= simple_xs(view(ys, group), markersize, side)
+        view_ys = view(ys, group)
+        if isempty(view_ys)
+            continue
+        else
+            xs[group] .= simple_xs(view_ys, markersize, side)
+        end
     end
     
     buffer .= Point2f.(xs .+ first.(positions), last.(positions))
