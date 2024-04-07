@@ -66,7 +66,7 @@ function _mime_from_format(fmt::String, backend::Symbol)
     end
 end
 
-function transform_figure_code(code::String; backend::Symbol = :CairoMakie, type=backend==:CairoMakie ? "svg" : "png", kwargs...)
+function transform_figure_code(code::String; backend::Symbol = :CairoMakie, type = "png", kwargs...)
     backend in (:CairoMakie, :GLMakie, :WGLMakie, :RPRMakie) || error("Invalid backend $backend")
     mimetype = _mime_from_format(type, backend)
     # All this code is within the Documenter runner module's scope, so we have to go up one level to go to Main.
