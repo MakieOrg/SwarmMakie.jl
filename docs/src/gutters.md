@@ -1,6 +1,6 @@
 # Gutters
 
-```@example gutters
+```@figure gutters; backend=:CairoMakie; type="svg" 
 using SwarmMakie, CairoMakie
 xs = rand(1:10, 2000)
 beeswarm(xs, rand(2000); gutter = 0.3, color = xs)
@@ -14,7 +14,7 @@ A nice gutter size to avoid overlap in neighboring categories ranges between `0.
 
 ## Examples
 
-```@example gutters
+```@figure gutters
 using SwarmMakie, CairoMakie
 f, a, p = beeswarm(
     rand(1:3, 300), randn(300); 
@@ -23,7 +23,7 @@ f, a, p = beeswarm(
 p.gutter = 0.5
 ```
 Note the warning messages printed here!  These can be helpful to diagnose when your data is moving too far out of the gutter, but you can turn them off by passing `gutter_threshold = false` or setting the `gutter_threshold` to a higher value (must be an `Int` and >0).
-```@example gutters
+```@figure gutters
 f
 ```
 
