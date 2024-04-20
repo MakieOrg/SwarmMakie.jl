@@ -99,7 +99,7 @@ function Makie.plot!(plot::Beeswarm)
     point_buffer = Observable{Vector{Point2f}}(zeros(Point2f, length(positions[])))
     pixelspace_point_buffer = Observable{Vector{Point2f}}(zeros(Point2f, length(positions[])))
     # when the positions change, we must update the buffer arrays
-    onany(plot, plot.converted[1], plot.algorithm, plot.color, plot.markersize, plot.side, plot.direction, plot.gutter, plot.gutter_threshold, should_update_based_on_zoom) do positions, algorithm, colors, markersize, side, direction, gutter, gutter_threshold, _
+    onany(plot, plot.converted[1], plot.algorithm, plot.transformation.transform_func, plot.markersize, plot.side, plot.direction, plot.gutter, plot.gutter_threshold, should_update_based_on_zoom) do positions, algorithm, tfunc, markersize, side, direction, gutter, gutter_threshold, _
         @assert side in (:both, :left, :right) "side should be one of :both, :left, or :right, got $(side)"
         @assert direction in (:x, :y) "direction should be one of :x or :y, got $(direction)"
         if length(positions) != length(point_buffer[])
@@ -107,12 +107,17 @@ function Makie.plot!(plot::Beeswarm)
             point_buffer.val = copy(positions)
             pixelspace_point_buffer.val = zeros(Point2f, length(positions))
         end
+        # Apply nonlinear transform function if any
+        pixelspace_point_buffer.val .= Makie.apply_transform(tfunc, positions, :data)
         # Project input positions from data space to pixel space
-        pixelspace_point_buffer.val .= Point2f.(Makie.project.((scene.camera,), :data, :pixel, direction == :y ? positions : reverse.(positions)))
+        pixelspace_point_buffer.val .= Point2f.(Makie.project.((scene.camera,), :data, :pixel, direction == :y ? pixelspace_point_buffer.val : reverse.(pixelspace_point_buffer.val)))
         # Calculate the beeswarm in pixel space and store it in `point_buffer.val`
         calculate!(point_buffer.val, algorithm, direction == :y ? pixelspace_point_buffer.val : reverse.(pixelspace_point_buffer.val), markersize, side)
         # Project the beeswarm back to data space and store it, again, in `point_buffer.val`
         point_buffer.val .= Point2f.(Makie.project.((scene.camera,), :pixel, :data, direction == :y ? (point_buffer.val) : reverse.(point_buffer.val)))
+        # Finally, apply the inverse transform to move back into data space.
+        # TODO: remove this once we have `space==:transformed` in Makie.
+        point_buffer.val .= Makie.apply_transform(Makie.inverse_transform(tfunc), point_buffer.val, :data)
 
         # Method to create a gutter when a gutter is defined
         # NOTE: Maybe turn this into a helper function?
