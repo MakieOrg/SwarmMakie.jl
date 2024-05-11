@@ -72,7 +72,7 @@ makedocs(;
     authors="Anshul Singhvi <anshulsinghvi@gmail.com>, Jacob Zelko <jacobszelko@gmail.com>, Michael Krabbe Borregaard <mkborregaard@snm.ku.dk>, and contributors",
     sitename="SwarmMakie.jl",
     format=DocumenterVitepress.MarkdownVitepress(;
-        repo = "https://github.com/asinghvi17/SwarmMakie.jl",
+        repo = "https://github.com/MakieOrg/SwarmMakie.jl",
         devurl = "dev",
         devbranch = "main",
     ),
@@ -92,7 +92,7 @@ makedocs(;
 )
 
 deploydocs(;
-    repo="github.com/asinghvi17/SwarmMakie.jl",
+    repo="github.com/MakieOrg/SwarmMakie.jl",
     devbranch="main",
     push_preview = true,
 )

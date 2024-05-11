@@ -16,7 +16,7 @@ hero:
       link: /introduction
     - theme: alt
       text: View on Github
-      link: https://github.com/asinghvi17/SwarmMakie.jl
+      link: https://github.com/MakieOrg/SwarmMakie.jl
     - theme: alt
       text: API Reference
       link: /api
@@ -56,7 +56,7 @@ ys = rand(150)
 beeswarm(ones(length(ys)), ys)
 ```
 
-<img src="https://github.com/asinghvi17/SwarmMakie.jl/assets/32143268/5b422b52-0017-4bd2-8c61-22ad195266b1" width=600 alt="Single, simple beeswarm"/>
+<img src="https://github.com/MakieOrg/SwarmMakie.jl/assets/32143268/5b422b52-0017-4bd2-8c61-22ad195266b1" width=600 alt="Single, simple beeswarm"/>
 
 ```julia
 using SwarmMakie, CairoMakie
@@ -65,7 +65,7 @@ ys = randn(500)
 beeswarm(xs, ys; color = xs)
 ```
 
-<img src="https://github.com/asinghvi17/SwarmMakie.jl/assets/32143268/861f36f9-d431-41a3-8823-6d96edac0017" width=600 alt="Beeswarm with multiple categories"/>
+<img src="https://github.com/MakieOrg/SwarmMakie.jl/assets/32143268/861f36f9-d431-41a3-8823-6d96edac0017" width=600 alt="Beeswarm with multiple categories"/>
 
 
 </div>
