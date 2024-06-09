@@ -1,1 +1,0 @@
-import{_ as a,c as e,o as i,a6 as s}from"./chunks/framework.IcYGlio0.js";const b=JSON.parse('{"title":"API Reference","description":"","frontmatter":{},"headers":[],"relativePath":"api.md","filePath":"api.md","lastUpdated":null}'),r={name:"api.md"},t=s("",26),n=[t];function o(l,p,d,c,h,k){return i(),e("div",null,n)}const u=a(r,[["render",o]]);export{b as __pageData,u as default};
