@@ -1,7 +1,7 @@
 name = "SwarmMakie"
 uuid = "0b1c068e-6a84-4e66-8136-5c95cafa83ed"
 authors = ["Anshul Singhvi <anshulsinghvi@gmail.com>", "Jacob Zelko <jacobszelko@gmail.com>", "Michael Krabbe Borregaard <mkborregaard@snm.ku.dk>", "and contributors"]
-version = "0.1.0"
+version = "0.1.1"
 
 [deps]
 KernelDensity = "5ab0869b-81aa-558d-bb23-cbf5423bbe9b"
