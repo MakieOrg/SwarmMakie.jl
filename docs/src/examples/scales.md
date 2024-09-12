@@ -5,7 +5,7 @@ Beeswarm plots can be plotted in any combination of `xscale` and `yscale`.
 Specifically, beeswarm plots are correct in any [separable transform](https://geo.makie.org/stable/nonlinear_transforms/#Nonlinear-but-separable) - basically, any transform in which the x and y coordinates are independent of each other.  This excludes most geographic transformations, but includes any transformation you can make using `xscale` and `yscale` in a Makie `Axis`.
 
 ```@figure logscale
-using SwarmMakie, Makie
+using SwarmMakie, CairoMakie
 data = randn(75) .+ 3
 fig = Figure()
 ax1 = Axis(fig[1, 1]; title = "No transform")
