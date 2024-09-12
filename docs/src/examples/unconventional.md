@@ -10,7 +10,7 @@ You can use swarm plots to simply separate scatter markers which share the same 
 using Base.MathConstants
 using CSV
 using DataFrames
-using AlgebraOfGraphics, SwarmMakie, CairoMakie
+using AlgebraOfGraphics, SwarmMakie, CairoMakie, MakieTeX
 using StatsBase, CategoricalArrays
 
 # Load benchmark data from file
@@ -152,31 +152,18 @@ f
 using Rsvg
 using CairoMakie
 using CairoMakie.Cairo, CairoMakie.FileIO
-
-function pngify(input_data::AbstractString)
-    r = Rsvg.handle_new_from_data(String(input_data));
-    Rsvg.handle_set_dpi(r, 2.0)
-    d = Rsvg.handle_get_dimensions(r);
-    img = fill(Makie.Colors.ARGB32(0, 0, 0, 0), d.width * 4, d.height * 4)
-    # create an image surface to draw onto the image
-    surf = Cairo.CairoImageSurface(img)
-    ctx = Cairo.CairoContext(surf);
-    Cairo.scale(ctx, 4, 4)
-    Rsvg.handle_render_cairo(ctx,r);
-    return permutedims(img)
-end
-
+using MakieTeX
 
 language_logo_url(lang::String) = "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/$(lowercase(lang))/$(lowercase(lang))-original.svg"
 
-language_marker_dict = Dict(
-    [key => read(download(language_logo_url(key)), String) |> pngify for key in ("c", "fortran", "go", "java", "javascript", "julia", "matlab", "python", "r", "rust")]
+language_marker_dict = Dict{String, Any}(
+    [key => read(download(language_logo_url(key)), String) |> MakieTeX.CachedSVG for key in ("c", "fortran", "go", "java", "javascript", "julia", "matlab", "python", "r", "rust")]
 )
 
 language_marker_dict["octave"] = FileIO.load(File{format"PNG"}(download("https://upload.wikimedia.org/wikipedia/commons/thumb/6/6a/Gnu-octave-logo.svg/2048px-Gnu-octave-logo.svg.png"))) .|> Makie.Colors.ARGB32  
 
-language_marker_dict["luajit"] = read(download(language_logo_url("lua")), String) |> pngify 
-language_marker_dict["mathematica"] = read(download("https://upload.wikimedia.org/wikipedia/commons/2/20/Mathematica_Logo.svg"), String) |> pngify 
+language_marker_dict["luajit"] = read(download(language_logo_url("lua")), String) |> MakieTeX.CachedSVG
+language_marker_dict["mathematica"] = read(download("https://upload.wikimedia.org/wikipedia/commons/2/20/Mathematica_Logo.svg"), String) |> MakieTeX.CachedSVG
 
 
 f, a, p = beeswarm(
