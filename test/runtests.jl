@@ -30,7 +30,7 @@ buffer = deepcopy(pixel_points)
             Makie.update_state_before_display!(f)
             Makie.update_state_before_display!(f)
             Makie.update_state_before_display!(f)
-            img = Makie.colorbuffer(f.scene; screen_config = CairoMakie.ScreenConfig(1, 1, :none, true, false))
+            img = Makie.colorbuffer(f.scene; px_per_unit = 1, pt_per_unit = 1, antialias = :none, visible = true, start_renderloop = false)
             # We have a matrix of all colors in the image.  Now, what we do is the following:
             # The color white in RGBf is (1, 1, 1).  For a color to be red, the blue and green components
             # must correspondingly decrease, since the RGBf values cannot exceed 1.
