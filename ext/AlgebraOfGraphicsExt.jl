@@ -14,14 +14,7 @@ end
 
 
 function AOG.legend_elements(T::Type{Beeswarm}, attributes, scale_args::AOG.MixedArguments)
-    [Makie.MarkerElement(
-        color = AOG._get(T, scale_args, attributes, :color),
-        markerpoints = [Point2f(0.5, 0.5)],
-        marker = AOG._get(T, scale_args, attributes, :marker),
-        markerstrokewidth = AOG._get(T, scale_args, attributes, :strokewidth),
-        markersize = AOG._get(T, scale_args, attributes, :markersize),
-        markerstrokecolor = AOG._get(T, scale_args, attributes, :strokecolor),
-    )]
+    return AOG.legend_elements(Makie.Scatter, attributes, scale_args) # same legend as Scatter
 end
 
 end
