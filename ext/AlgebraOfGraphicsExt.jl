@@ -7,6 +7,7 @@ function AlgebraOfGraphics.aesthetic_mapping(::Type{Beeswarm}, ::AOG.Normal, ::A
         1 => AOG.AesX,
         2 => AOG.AesY,
         :color => AOG.AesColor,
+        :strokecolor => AOG.AesColor,
         :marker => AOG.AesMarker,
         :markersize => AOG.AesMarkerSize,
     ])
