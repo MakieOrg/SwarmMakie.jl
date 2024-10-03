@@ -81,7 +81,11 @@ function Makie.data_limits(bs::Beeswarm)
     range_1 = if length(categories) == 1
         (only(categories) - 0.5, only(categories) + 0.5)
     else
-        mindiff =  minimum(diff(categories))
+        mindiff = if isnothing(bs.gutter[])
+            minimum(diff(categories))
+        else
+            bs.gutter[]  
+        end
         (first(categories) - mindiff/2, last(categories) + mindiff/2)
     end
     range_2 = extrema(p[2] for p in points)
