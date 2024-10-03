@@ -60,7 +60,42 @@ function calculate!(buffer::AbstractVector{<: Point2}, alg::NoBeeswarm, position
     return
 end
 
-Makie.data_limits(bs::Beeswarm) = Makie.data_limits(bs.plots[1])
+# Beeswarm plots inherently have an extent that is dependent on the placement
+# algorithm and the available space. However, you cannot use the actual placement
+# of scatter dots to infer limits, because adjusting the axis given these limits
+# invalidates the limits again, and so on, potentially ad infinitum.
+#
+# Instead, it makes more sense to pick fixed limits given the input data. If
+# that doesn't leave enough place for all beeswarms, probably the axis size
+# has to be increased, or the marker sized decreased, anyway.
+#
+# The dimension that's not controlled by the beeswarm placement algorithm we
+# can take directly from the input data. For the "categories" or group placement
+# values, we simply determine the differences between the unique sorted values and
+# increase the width at the sides by half the minimum distance. That means, we create
+# equal space for all categories. If the beeswarm doesn't fit that, again, other
+# parameters have to be adjusted anway.
+function Makie.data_limits(bs::Beeswarm)
+    points = bs.converted[1][]
+    categories = sort(unique(p[1] for p in points))
+    range_1 = if length(categories) == 1
+        (only(categories) - 0.5, only(categories) + 0.5)
+    else
+        mindiff =  minimum(diff(categories))
+        (first(categories) - mindiff/2, last(categories) + mindiff/2)
+    end
+    range_2 = extrema(p[2] for p in points)
+    bb = if bs.direction[] === :y
+        BBox(range_1..., range_2...)
+    elseif bs.direction[] === :x
+        BBox(range_2..., range_1...)
+    else
+        error("Invalid direction $(repr(bs.direction[])), expected :x or :y")
+    end
+    return Rect3f(bb)
+end
+
+Makie.boundingbox(s::Beeswarm, space::Symbol = :data) = Makie.apply_transform_and_model(s, Makie.data_limits(s))
 
 function Makie.plot!(plot::Beeswarm)
     positions = plot.converted[1] # being PointBased, it should always receive a vector of Point2
