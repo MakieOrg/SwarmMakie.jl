@@ -28,8 +28,6 @@ buffer = deepcopy(pixel_points)
             hidedecorations!(a)
             hidespines!(a)
             Makie.update_state_before_display!(f)
-            Makie.update_state_before_display!(f)
-            Makie.update_state_before_display!(f)
             img = Makie.colorbuffer(f.scene; px_per_unit = 1, pt_per_unit = 1, antialias = :none, visible = true, start_renderloop = false)
             # We have a matrix of all colors in the image.  Now, what we do is the following:
             # The color white in RGBf is (1, 1, 1).  For a color to be red, the blue and green components
@@ -53,16 +51,13 @@ buffer = deepcopy(pixel_points)
         # First, we test the regular gutter with multiple categories.
         f, a, p = beeswarm(rand(1:3, 300), randn(300); color = rand(RGBAf, 300), markersize = 20, algorithm = SimpleBeeswarm())
         Makie.update_state_before_display!(f)        
-        Makie.update_state_before_display!(f)
         @test_warn "Gutter threshold exceeded" p.gutter = 0.2
         # Next, we test it in direction y
-        f, a, p = beeswarm(rand(1:3, 300), randn(300); direction = :x, color = rand(RGBAf, 300), markersize = 20, algorithm = SimpleBeeswarm())
-        Makie.update_state_before_display!(f)        
+        f, a, p = beeswarm(rand(1:3, 300), randn(300); direction = :x, color = rand(RGBAf, 300), markersize = 20, algorithm = SimpleBeeswarm())        
         Makie.update_state_before_display!(f)
         @test_warn "Gutter threshold exceeded" p.gutter = 0.2
         # and it shouldn't warn if, when using a lower markersize, the gutter is not reached.
-        f, a, p = beeswarm(rand(1:3, 300), randn(300); direction = :y, color = rand(RGBAf, 300), markersize = 9, algorithm = SimpleBeeswarm())
-        Makie.update_state_before_display!(f)        
+        f, a, p = beeswarm(rand(1:3, 300), randn(300); direction = :y, color = rand(RGBAf, 300), markersize = 9, algorithm = SimpleBeeswarm())      
         Makie.update_state_before_display!(f)
         @test_nowarn p.gutter = 0.5
     end

@@ -22,9 +22,6 @@ using PalmerPenguins, DataFrames
 penguins = dropmissing(DataFrame(PalmerPenguins.load()))
 
 f = data(penguins) * mapping(:species, :bill_depth_mm, color=:sex) * visual(Beeswarm) |> draw
-Makie.update_state_before_display!(f.figure)
-Makie.update_state_before_display!(f.figure)
-Makie.update_state_before_display!(f.figure)
 f
 
 # ## SwarmMakie logo
@@ -43,10 +40,6 @@ f.scene.backgroundcolor[] = RGBAf(1,1,1,0)
 a.scene.backgroundcolor[] = RGBAf(1,1,1,0)
 hidedecorations!(a)
 hidespines!(a)
-Makie.update_state_before_display!(f)
-Makie.update_state_before_display!(f)
-Makie.update_state_before_display!(f)
-Makie.update_state_before_display!(f)
 f
 
 # ## Wilkinson's dot histogram
