@@ -19,7 +19,6 @@ ax_plots = [beeswarm(fig[Tuple(idx)...], xs, ys; color = xs, algorithm = algorit
 jitter_plots = getproperty.(ax_plots[2, :], :plot)
 setproperty!.(jitter_plots, :markersize, 7)
 setproperty!.(jitter_plots, :alpha, 0.3)
-Makie.update_state_before_display!(fig)
 fig
 ```
 

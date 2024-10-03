@@ -35,8 +35,6 @@ iris = dataset("datasets", "iris")
 f = data(iris) * 
     mapping(:Species, :SepalLength; color = :Species) * 
     visual(Beeswarm) |> draw
-Makie.update_state_before_display!(f.figure)
-Makie.update_state_before_display!(f.figure)
 f
 ```
 
@@ -44,4 +42,3 @@ f
 
 If your beeswarms are overlapping, or extending outside the axis area, try decreasing `markersize`.  You can do this by setting `plot.markersize = 6` for example, and then re-displaying the figure.
 
-Generally, the algorithm takes a few iterations of calling `Makie.update_state_before_display!(figure)` to settle in a good configuration.  We are working to fix this.
