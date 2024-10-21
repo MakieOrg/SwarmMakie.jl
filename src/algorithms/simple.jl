@@ -47,7 +47,7 @@ function simple_xs(ys, markersize, side)
         nbins = 3
     end
     dy = markersize
-    ybins = LinRange(ymin+dy, ymax-dy, nbins-1) # this is a center list of bins
+    ybins = LinRange(ymin+dy/2, ymax-dy/2, nbins-1) # this is a center list of bins
     idxs = eachindex(ys)
     bin_idxs = Vector{Vector{Int}}()
     bin_vals = Vector{Vector{eltype(ys)}}()
