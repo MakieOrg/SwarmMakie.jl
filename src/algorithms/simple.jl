@@ -31,7 +31,12 @@ function calculate!(buffer::AbstractVector{<: Point2}, alg::SimpleBeeswarm, posi
         if isempty(view_ys)
             continue
         else
-            xs[group] .= simple_xs(view_ys, markersize, side)
+            ms = if markersize isa Number
+                markersize
+            else
+                only(unique(@view markersize[group]))
+            end
+            xs[group] .= simple_xs(view_ys, ms, side)
         end
     end
     
