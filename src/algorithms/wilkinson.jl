@@ -56,7 +56,7 @@ function calculate!(buffer::AbstractVector{<: Point2}, alg::WilkinsonBeeswarm, p
             markersize
         else
             view_ms = view(markersize, group)
-            maximum(unique(view_ms))
+            maximum(view_ms)
         end
         wilkinson_kernel!(view(buffer, group), view(positions, group), ms, side)
     end
