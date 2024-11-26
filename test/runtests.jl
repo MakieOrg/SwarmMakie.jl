@@ -64,8 +64,10 @@ buffer = deepcopy(pixel_points)
     @testset "Vector markersizes" begin
         # First, we test the regular gutter with multiple categories.
         xs = rand(1:3, 300)
-        f, a, p = beeswarm(xs, randn(300); color = rand(RGBAf, 300), markersize = xs*2, algorithm = SimpleBeeswarm())
-        Makie.update_state_before_display!(f)
+        for algorithm in [NoBeeswarm(), SimpleBeeswarm(), WilkinsonBeeswarm(), UniformJitter(), PseudorandomJitter(), QuasirandomJitter()]
+            f, a, p = beeswarm(xs, randn(300); color = rand(RGBAf, 300), markersize = xs*2, algorithm)
+            Makie.update_state_before_display!(f)
+        end
     end
 end
 

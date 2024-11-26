@@ -52,7 +52,13 @@ function calculate!(buffer::AbstractVector{<: Point2}, alg::WilkinsonBeeswarm, p
     ## the beeswarm for each group.  
     for x_val in unique(xs)
         group = findall(==(x_val), xs)
-        wilkinson_kernel!(view(buffer, group), view(positions, group), markersize, side)
+        ms = if markersize isa Number
+            markersize
+        else
+            view_ms = view(markersize, group)
+            maximum(unique(view_ms))
+        end
+        wilkinson_kernel!(view(buffer, group), view(positions, group), ms, side)
     end
     
 end
