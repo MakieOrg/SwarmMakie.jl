@@ -23,10 +23,21 @@ function calculate!(buffer::AbstractVector{<: Point2}, alg::SimpleBeeswarm2, pos
         view_ys = view(ys, group)
         perm = sortperm(view_ys)
         ys_sorted = view_ys[perm]
+
+        ms = if markersize isa Number
+            markersize
+        else
+            if length(unique(markersize[group])) == 1
+                markersize[group][1]
+            else # this should error
+                markersize[group]
+            end
+        end
+
         if isempty(ys_sorted)
             continue
         else
-            xs[group] .= simple_beeswarm2(ys_sorted, markersize)[invperm(perm)]
+            xs[group] .= simple_beeswarm2(ys_sorted, ms)[invperm(perm)]
         end
     end
     

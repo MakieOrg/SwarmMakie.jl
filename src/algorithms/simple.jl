@@ -24,14 +24,19 @@ function calculate!(buffer::AbstractVector{<: Point2}, alg::SimpleBeeswarm, posi
     @debug "Calculating..."
     ys = last.(positions)
     xs = first.(positions)
-
     for x_val in unique(xs)
         group = findall(==(x_val), xs)
         view_ys = view(ys, group)
         if isempty(view_ys)
             continue
         else
-            xs[group] .= simple_xs(view_ys, markersize, side)
+            ms = if markersize isa Number
+                markersize
+            else
+                view_ms = view(markersize, group)
+                maximum(view_ms)
+            end
+            xs[group] .= simple_xs(view_ys, ms, side)
         end
     end
     

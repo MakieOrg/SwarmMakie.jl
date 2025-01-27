@@ -61,8 +61,16 @@ function calculate!(buffer::AbstractVector{<: Point2}, alg::JitterAlgorithm, pos
 	xs = first.(positions)
 	ys = last.(positions)
 	for x_val in unique(xs)
+		# Isolate the indices of this particular group
 		group = xs .== x_val
-		@views buffer[group] .= Point2f.(xs[group] .+ create_jitter_array(ys[group], alg) .* markersize, ys[group])
+		# Extract the marker size
+	        ms = if markersize isa Number
+	            markersize
+	        else
+	            view(markersize, group)
+	        end
+		# Assign the jittered values to the buffer
+		@views buffer[group] .= Point2f.(xs[group] .+ create_jitter_array(ys[group], alg) .* ms, ys[group])
 	end
 end
 
