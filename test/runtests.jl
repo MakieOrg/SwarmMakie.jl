@@ -2,8 +2,10 @@ using SwarmMakie, Makie, CairoMakie
 using Makie.Colors
 using Test
 using Random
-
 Random.seed!(123)
+
+
+const ALL_ALGORITHMS = [NoBeeswarm(), SimpleBeeswarm(), SimpleBeeswarm2(), WilkinsonBeeswarm(), UniformJitter(), PseudorandomJitter(), QuasirandomJitter()]
 
 colors = RGBf.(LinRange(0, 1, 1000), 0, 0)
 
@@ -15,14 +17,14 @@ buffer = deepcopy(pixel_points)
 
 @testset "SwarmMakie.jl" begin
     @testset "Algorithms run without error" begin
-        for algorithm in [NoBeeswarm(), SimpleBeeswarm(), WilkinsonBeeswarm(), UniformJitter(), PseudorandomJitter(), QuasirandomJitter()]
+        for algorithm in ALL_ALGORITHMS
             @test_nowarn begin
                 SwarmMakie.calculate!(buffer, algorithm, pixel_points, 10, :left)
             end
         end
     end
     @testset "Overlaps" begin
-        for algorithm in [SimpleBeeswarm(), WilkinsonBeeswarm()]
+        for algorithm in [SimpleBeeswarm(), SimpleBeeswarm2(), WilkinsonBeeswarm()]
             # We test how many points are overlapping, proportionately.
             f, a, p = beeswarm(original_points; alpha = 0.5, algorithm, color = :red)
             hidedecorations!(a)
@@ -49,22 +51,22 @@ buffer = deepcopy(pixel_points)
     end
     @testset "Gutters" begin
         # First, we test the regular gutter with multiple categories.
-        f, a, p = beeswarm(rand(1:3, 300), randn(300); color = rand(RGBAf, 300), markersize = 20, algorithm = SimpleBeeswarm())
+        f, a, p = beeswarm(rand(1:3, 300), randn(300); color = rand(RGBAf, 300), markersize = 20, algorithm = SimpleBeeswarm2())
         Makie.update_state_before_display!(f)        
         @test_warn "Gutter threshold exceeded" p.gutter = 0.2
         # Next, we test it in direction y
-        f, a, p = beeswarm(rand(1:3, 300), randn(300); direction = :x, color = rand(RGBAf, 300), markersize = 20, algorithm = SimpleBeeswarm())        
+        f, a, p = beeswarm(rand(1:3, 300), randn(300); direction = :x, color = rand(RGBAf, 300), markersize = 20, algorithm = SimpleBeeswarm2())        
         Makie.update_state_before_display!(f)
         @test_warn "Gutter threshold exceeded" p.gutter = 0.2
         # and it shouldn't warn if, when using a lower markersize, the gutter is not reached.
-        f, a, p = beeswarm(rand(1:3, 300), randn(300); direction = :y, color = rand(RGBAf, 300), markersize = 9, algorithm = SimpleBeeswarm())      
+        f, a, p = beeswarm(rand(1:3, 300), randn(300); direction = :y, color = rand(RGBAf, 300), markersize = 9, algorithm = SimpleBeeswarm2())      
         Makie.update_state_before_display!(f)
         @test_nowarn p.gutter = 0.5
     end
     @testset "Vector markersizes" begin
         # First, we test the regular gutter with multiple categories.
         xs = rand(1:3, 300)
-        for algorithm in [NoBeeswarm(), SimpleBeeswarm(), WilkinsonBeeswarm(), UniformJitter(), PseudorandomJitter(), QuasirandomJitter()]
+        for algorithm in ALL_ALGORITHMS
             f, a, p = beeswarm(xs, randn(300); color = rand(RGBAf, 300), markersize = xs*2, algorithm)
             Makie.update_state_before_display!(f)
         end
