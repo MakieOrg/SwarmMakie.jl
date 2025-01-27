@@ -1,6 +1,18 @@
+# # Simple beeswarm 2 (default)
+# This algorithm was contributed by Julius Krumbiegel (@jkrumbiegel) in PR #29.
+
+"""
+    SimpleBeeswarm2()
+
+A simple beeswarm implementation, that minimizes overlaps.
+
+This algorithm dodges in `x` but preserves the exact `y` coordinate of each point.
+If you don't want to preserve the y coordinate, check out [`WilkinsonBeeswarm`](@ref).
+"""
 struct SimpleBeeswarm2 <: BeeswarmAlgorithm
 end
 
+export SimpleBeeswarm2
 
 function calculate!(buffer::AbstractVector{<: Point2}, alg::SimpleBeeswarm2, positions::AbstractVector{<: Point2}, markersize, side::Symbol)
     ys = last.(positions)

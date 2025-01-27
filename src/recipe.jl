@@ -15,7 +15,7 @@ export NoBeeswarm
 It displaces points which would otherwise overlap in the x-direction by binning in the y direction. 
 
 Specific attributes to `beeswarm` are:
-- `algorithm = SimpleBeeswarm()`: The algorithm used to lay out the beeswarm markers.
+- `algorithm = SimpleBeeswarm2()`: The algorithm used to lay out the beeswarm markers.
 - `side = :both`: The side towards which markers should extend.  Can be `:left`, `:right`, or both.  
 - `direction = :y`: Controls the direction of the beeswarm.  Can be `:y` (vertical) or `:x` (horizontal).
 - `gutter = nothing`: Creates a gutter of a desired size around each category.  Gutter size is always in data space.
@@ -34,7 +34,7 @@ beeswarm(ones(100), randn(100); color = rand(RGBf, 100))
 @recipe(Beeswarm, positions) do scene
     return merge(
         Attributes(
-            algorithm = SimpleBeeswarm(),
+            algorithm = SimpleBeeswarm2(),
             side = :both,
             direction = :y,
             gutter = nothing,
