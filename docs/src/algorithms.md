@@ -10,7 +10,7 @@ In addition, SwarmMakie offers jittered scatter plots as algorithms to `beeswarm
 
 Here's a comparison of all the available algorithms:
 
-```@figure all_algorithms
+```@example all_algorithms
 using SwarmMakie, CairoMakie
 algorithms = [NoBeeswarm() SimpleBeeswarm() WilkinsonBeeswarm(); UniformJitter() PseudorandomJitter() QuasirandomJitter()]
 fig = Figure(; size = (800, 450))

@@ -2,10 +2,6 @@ using SwarmMakie
 using Documenter, DocumenterVitepress, Literate
 using CairoMakie
 
-CairoMakie.activate!(type="svg", pt_per_unit = 1)
-
-include("documenter_figure_block.jl")
-
 DocMeta.setdocmeta!(SwarmMakie, :DocTestSetup, :(using SwarmMakie); recursive=true)
 
 ENV["DATADEPS_ALWAYS_ACCEPT"] = true
@@ -30,10 +26,6 @@ function _add_meta_edit_link_generator(path)
     end
 end
 
-function _replace_example_with_figure(input)
-    return replace(input, "```@example" => "```@figure")
-end
-
 # First letter of `str` is made uppercase and returned
 ucfirst(str::String) = string(uppercase(str[1]), str[2:end])
 
@@ -49,7 +41,7 @@ function process_literate_recursive!(pages::Vector{Any}, path::String; source_pa
             Literate.markdown(
                 path, output_dir; 
                 flavor = Literate.CommonMarkFlavor(), 
-                postprocess = _add_meta_edit_link_generator(joinpath(relpath(source_path, output_dir), relative_path)) ∘ _replace_example_with_figure
+                postprocess = _add_meta_edit_link_generator(joinpath(relpath(source_path, output_dir), relative_path))
             )
             push!(pages, joinpath("source", splitext(relative_path)[1] * ".md"))
         end
@@ -65,7 +57,7 @@ withenv("JULIA_DEBUG" => "Literate") do # allow Literate debug output to escape 
 end
 
 # As a special case, literatify the examples.jl file in docs/src to Documenter markdown
-Literate.markdown(joinpath(@__DIR__, "src", "examples", "examples.jl"), joinpath(@__DIR__, "src", "examples"); flavor = Literate.DocumenterFlavor(), postprocess = _replace_example_with_figure)
+Literate.markdown(joinpath(@__DIR__, "src", "examples", "examples.jl"), joinpath(@__DIR__, "src", "examples"); flavor = Literate.DocumenterFlavor())
 
 makedocs(;
     modules=[SwarmMakie],
