@@ -40,6 +40,7 @@ features:
 <p style="margin-bottom:2cm"></p>
 
 <div class="vp-doc" style="width:80%; margin:auto">
+````
 
 # What is SwarmMakie.jl?
 
@@ -50,25 +51,21 @@ SwarmMakie makes beeswarm plots for Makie through the `beeswarm` recipe.
 
 The entry point to this package is the `beeswarm` recipe, which accepts input the same way `scatter` does in all respects -- plus a keyword `algorithm`, which specifies the beeswarm algorithm!
 
-```julia
+```@example
 using SwarmMakie, CairoMakie
 ys = rand(150)
 beeswarm(ones(length(ys)), ys)
 ```
 
-<img src="https://github.com/MakieOrg/SwarmMakie.jl/assets/32143268/5b422b52-0017-4bd2-8c61-22ad195266b1" width=600 alt="Single, simple beeswarm"/>
-
-```julia
+```@example
 using SwarmMakie, CairoMakie
 xs = rand(1:4, 500)
 ys = randn(500)
 beeswarm(xs, ys; color = xs)
 ```
 
-<img src="https://github.com/MakieOrg/SwarmMakie.jl/assets/32143268/861f36f9-d431-41a3-8823-6d96edac0017" width=600 alt="Beeswarm with multiple categories"/>
-
-
+````@raw html
 </div>
-
 ````
+
 
