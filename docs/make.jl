@@ -57,6 +57,8 @@ end
 # As a special case, literatify the examples.jl file in docs/src to Documenter markdown
 Literate.markdown(joinpath(@__DIR__, "src", "examples", "examples.jl"), joinpath(@__DIR__, "src", "examples"); flavor = Literate.DocumenterFlavor())
 
+is_ci() = get(ENV, "CI", "false") == "true"
+
 makedocs(;
     modules=[SwarmMakie],
     authors="Anshul Singhvi <anshulsinghvi@gmail.com>, Jacob Zelko <jacobszelko@gmail.com>, Michael Krabbe Borregaard <mkborregaard@snm.ku.dk>, and contributors",
@@ -65,6 +67,7 @@ makedocs(;
         repo = "https://github.com/MakieOrg/SwarmMakie.jl",
         devurl = "dev",
         devbranch = "main",
+        (is_ci() ? (;) : (; deploy_url = ""))..., # without deploy_url="" locally the build is broken due to a SwarmMakie.jl prefix
     ),
     pages=[
         "Introduction" => "introduction.md",
@@ -78,7 +81,7 @@ makedocs(;
         "API Reference" => "api.md",
         "Source code" => literate_pages,
     ],
-    warnonly = true,
+    warnonly = !is_ci(),
 )
 
 deploydocs(;
