@@ -17,12 +17,10 @@ fig
 # ## Palmer Penguins
 
 using AlgebraOfGraphics, CairoMakie, SwarmMakie
-using PalmerPenguins, DataFrames
 
-penguins = dropmissing(DataFrame(PalmerPenguins.load()))
-
-f = data(penguins) * mapping(:species, :bill_depth_mm, color=:sex) * visual(Beeswarm) |> draw
-f
+data(AlgebraOfGraphics.penguins()) *
+    mapping(:species, :bill_depth_mm, color=:sex) *
+    visual(Beeswarm) |> draw
 
 # ## SwarmMakie logo
 

@@ -4,8 +4,6 @@ using CairoMakie
 
 DocMeta.setdocmeta!(SwarmMakie, :DocTestSetup, :(using SwarmMakie); recursive=true)
 
-ENV["DATADEPS_ALWAYS_ACCEPT"] = true
-
 # Now, we convert the source code to markdown files using Literate.jl
 source_path = joinpath(dirname(@__DIR__), "src")
 output_path = joinpath(@__DIR__, "src", "source")
