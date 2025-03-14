@@ -20,7 +20,7 @@ KernelDensity = "0.6"
 Makie = "0.20, 0.21, 0.22"
 StatsBase = "0.34"
 julia = "1.9"
-AlgebraOfGraphics = "0.8"
+AlgebraOfGraphics = "0.8, 0.9"
 
 [extras]
 CairoMakie = "13f3f980-e62b-5c42-98c6-ff1f3baf88f0"
