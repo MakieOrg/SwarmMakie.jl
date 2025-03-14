@@ -9,8 +9,7 @@ This is a simple beeswarm implementation as used in Matplotlib.
 """
     SimpleBeeswarm()
 
-A simple implementation like Matplotlib's algorithm.  This is the 
-default algorithm used in `beeswarm`.
+A simple implementation like Matplotlib's algorithm.
 
 This algorithm dodges in `x` but preserves the exact `y` coordinate of each point.
 If you don't want to preserve the y coordinate, check out [`WilkinsonBeeswarm`](@ref).

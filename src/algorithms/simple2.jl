@@ -4,7 +4,8 @@
 """
     SimpleBeeswarm2()
 
-A simple beeswarm implementation, that minimizes overlaps.
+A simple beeswarm implementation, that minimizes overlaps. This is the 
+default algorithm used in `beeswarm`.
 
 This algorithm dodges in `x` but preserves the exact `y` coordinate of each point.
 If you don't want to preserve the y coordinate, check out [`WilkinsonBeeswarm`](@ref).
