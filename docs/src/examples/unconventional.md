@@ -10,7 +10,7 @@ You can use swarm plots to simply separate scatter markers which share the same 
 using Base.MathConstants
 using CSV
 using DataFrames
-using AlgebraOfGraphics, SwarmMakie, CairoMakie, MakieTeX
+using AlgebraOfGraphics, SwarmMakie, CairoMakie
 using StatsBase, CategoricalArrays
 
 # Load benchmark data from file
@@ -149,21 +149,34 @@ f
 ```@example julia-benchmark
 # Get logos for programming languages
 
-using Rsvg
 using CairoMakie
-using CairoMakie.Cairo, CairoMakie.FileIO
-using MakieTeX
+using CairoMakie.FileIO
+using Librsvg_jll
+
+function svg_to_img(svg)
+    mktempdir() do dir
+        pngpath = joinpath(dir, "img.png")
+        Librsvg_jll.rsvg_convert() do bin
+            open(`$bin -o $pngpath`, "w") do io
+                write(io, svg)
+            end
+        end
+        FileIO.load(pngpath)
+    end
+end
 
 language_logo_url(lang::String) = "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/$(lowercase(lang))/$(lowercase(lang))-original.svg"
 
+language_to_img(lang::String) = svg_to_img(read(download(language_logo_url(lang)), String))
+
 language_marker_dict = Dict{String, Any}(
-    [key => read(download(language_logo_url(key)), String) |> MakieTeX.CachedSVG for key in ("c", "fortran", "go", "java", "javascript", "julia", "matlab", "python", "r", "rust")]
+    [key => language_to_img(key) for key in ("c", "fortran", "go", "java", "javascript", "julia", "matlab", "python", "r", "rust")]
 )
 
 language_marker_dict["octave"] = FileIO.load(File{format"PNG"}(download("https://upload.wikimedia.org/wikipedia/commons/thumb/6/6a/Gnu-octave-logo.svg/2048px-Gnu-octave-logo.svg.png"))) .|> Makie.Colors.ARGB32  
 
-language_marker_dict["luajit"] = read(download(language_logo_url("lua")), String) |> MakieTeX.CachedSVG
-language_marker_dict["mathematica"] = read(download("https://upload.wikimedia.org/wikipedia/commons/2/20/Mathematica_Logo.svg"), String) |> MakieTeX.CachedSVG
+language_marker_dict["luajit"] = language_to_img("lua")
+language_marker_dict["mathematica"] = read(download("https://upload.wikimedia.org/wikipedia/commons/2/20/Mathematica_Logo.svg"), String) |> svg_to_img
 
 
 f, a, p = beeswarm(
@@ -172,7 +185,7 @@ f, a, p = beeswarm(
     markersize = 11,
     axis = (;
         yscale = log10,
-        xticklabelrotation = 0, 
+        xticklabelrotation = pi/8, 
         xticklabelsize = 12,
         xticksvisible = false,
         topspinecolor = :gray,
