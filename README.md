@@ -9,8 +9,6 @@
 
 <div align="center">
 
-# SwarmMakie
-
 [![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://MakieOrg.github.io/SwarmMakie.jl/stable/)
 [![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://MakieOrg.github.io/SwarmMakie.jl/dev/)
 [![Build Status](https://github.com/MakieOrg/SwarmMakie.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/MakieOrg/SwarmMakie.jl/actions/workflows/CI.yml?query=branch%3Amain)
