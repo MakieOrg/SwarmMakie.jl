@@ -1,3 +1,14 @@
+<div align="center">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" 
+        srcset="/docs/src/assets/logo_with_text_dark.svg" >
+      <img alt="Makie.jl logo" 
+        src="/docs/src/assets/logo_with_text.svg" width="350">
+    </picture>
+</div>
+
+<div align="center">
+
 # SwarmMakie
 
 [![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://MakieOrg.github.io/SwarmMakie.jl/stable/)
@@ -5,8 +16,6 @@
 [![Build Status](https://github.com/MakieOrg/SwarmMakie.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/MakieOrg/SwarmMakie.jl/actions/workflows/CI.yml?query=branch%3Amain)
 
 Beeswarm plots in Makie!
-
-<img src="docs/src/assets/logo.png" width=200/>
 
 ## Quick start
 
