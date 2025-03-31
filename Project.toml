@@ -1,7 +1,7 @@
 name = "SwarmMakie"
 uuid = "0b1c068e-6a84-4e66-8136-5c95cafa83ed"
 authors = ["Anshul Singhvi <anshulsinghvi@gmail.com>", "Jacob Zelko <jacobszelko@gmail.com>", "Michael Krabbe Borregaard <mkborregaard@snm.ku.dk>", "and contributors"]
-version = "0.1.4"
+version = "0.1.5"
 
 [deps]
 KernelDensity = "5ab0869b-81aa-558d-bb23-cbf5423bbe9b"
@@ -20,7 +20,7 @@ KernelDensity = "0.6"
 Makie = "0.20, 0.21, 0.22"
 StatsBase = "0.34"
 julia = "1.9"
-AlgebraOfGraphics = "0.9.5"
+AlgebraOfGraphics = "0.9.5, 0.10"
 
 [extras]
 CairoMakie = "13f3f980-e62b-5c42-98c6-ff1f3baf88f0"
