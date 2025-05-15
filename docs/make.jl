@@ -84,7 +84,7 @@ makedocs(;
     warnonly = !is_ci(),
 )
 
-deploydocs(;
+DocumenterVitepress.deploydocs(;
     repo="github.com/MakieOrg/SwarmMakie.jl",
     devbranch="main",
     push_preview = true,
