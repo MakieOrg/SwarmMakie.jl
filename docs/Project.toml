@@ -13,7 +13,7 @@ StatsBase = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
 SwarmMakie = "0b1c068e-6a84-4e66-8136-5c95cafa83ed"
 
 [compat]
-DocumenterVitepress = ">0.2.1"
+DocumenterVitepress = ">=0.2.1"
 
 [sources]
 SwarmMakie = {path = ".."}
