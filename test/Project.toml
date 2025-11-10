@@ -1,0 +1,10 @@
+[deps]
+CairoMakie = "13f3f980-e62b-5c42-98c6-ff1f3baf88f0"
+Makie = "ee78f7c6-11fb-53f2-987a-cfe4a2b5a57a"
+PixelMatch = "433bd86c-62cb-491d-a348-72c5c8365002"
+Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
+SwarmMakie = "0b1c068e-6a84-4e66-8136-5c95cafa83ed"
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[sources]
+SwarmMakie = {path = ".."}
