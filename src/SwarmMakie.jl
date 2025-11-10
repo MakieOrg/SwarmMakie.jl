@@ -11,12 +11,15 @@ import StatsBase:
     UnitWeights
 import KernelDensity
 
-include("recipe.jl")
+# this is subtyped by e.g. `SimpleBeeswarm` and `VerticallyChallengedBeeswarm`
+abstract type BeeswarmAlgorithm end
+
 include("algorithms/simple.jl")
 ## include("algorithms/mkborregaard.jl")
 include("algorithms/seaborn.jl")
 include("algorithms/wilkinson.jl")
 include("algorithms/jitter.jl")
 include("algorithms/simple2.jl")
+include("recipe.jl")
 
 end
