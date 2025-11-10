@@ -2,8 +2,10 @@ using SwarmMakie, Makie, CairoMakie
 using Makie.Colors
 using Test
 using Random
+using PixelMatch
 Random.seed!(123)
 
+include("reftest_utils.jl")
 
 const ALL_ALGORITHMS = [NoBeeswarm(), SimpleBeeswarm(), SimpleBeeswarm2(), WilkinsonBeeswarm(), UniformJitter(), PseudorandomJitter(), QuasirandomJitter()]
 
@@ -11,7 +13,7 @@ colors = RGBf.(LinRange(0, 1, 1000), 0, 0)
 
 fig, ax, plt = scatter(ones(1000), randn(1000); color = colors)
 Makie.update_state_before_display!(fig)
-original_points = Point2f.(plt.converted[1][])
+original_points = Point2f.(plt.converted[][1])
 pixel_points = Point2f.(Makie.project.((ax.scene.camera,), :data, :pixel, original_points))
 buffer = deepcopy(pixel_points)
 
