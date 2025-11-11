@@ -55,6 +55,11 @@ include("reftest_utils.jl")
         beeswarm(test_data()..., algorithm = UniformJitter(; seed = 123))
     end
 
+    reftest("uniform jitter one group") do
+        _, y = test_data()
+        beeswarm(ones(size(y)), y, algorithm = UniformJitter(; seed = 123))
+    end
+
     reftest("quasirandom jitter") do
         beeswarm(test_data()..., algorithm = QuasirandomJitter())
     end
