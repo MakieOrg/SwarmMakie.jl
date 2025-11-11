@@ -16,11 +16,8 @@ import StableRNGs
 abstract type BeeswarmAlgorithm end
 
 include("algorithms/simple.jl")
-## include("algorithms/mkborregaard.jl")
-include("algorithms/seaborn.jl")
 include("algorithms/wilkinson.jl")
 include("algorithms/jitter.jl")
-include("algorithms/simple2.jl")
 include("recipe.jl")
 
 end
