@@ -1,7 +1,6 @@
 using SwarmMakie, Makie, CairoMakie
 using Makie.Colors
 using Test
-using Random
 using PixelMatch
 using StableRNGs
 
