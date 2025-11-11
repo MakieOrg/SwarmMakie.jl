@@ -27,7 +27,7 @@ output_space(::JitterAlgorithm) = :data
 A jitter algorithm that uses a uniform distribution to create the jitter.
 """
 Base.@kwdef struct UniformJitter <: JitterAlgorithm 
-	jitter_width::Union{Makie.Automatic,Float64} = Makie.automatic
+	width::Union{Makie.Automatic,Float64} = Makie.automatic
 	gap::Float64 = 0.33
 	seed::Union{Nothing,Int} = nothing
 end
@@ -38,7 +38,7 @@ A jitter algorithm that uses a pseudorandom distribution to create the jitter.
 A pseudorandom distribution is a uniform distribution weighted by the PDF of the data.
 """
 Base.@kwdef struct PseudorandomJitter <: JitterAlgorithm 
-	jitter_width::Union{Makie.Automatic,Float64} = Makie.automatic
+	width::Union{Makie.Automatic,Float64} = Makie.automatic
 	gap::Float64 = 0.33
 	seed::Union{Nothing,Int} = nothing
 end
@@ -49,7 +49,7 @@ A jitter algorithm that uses a quasirandom (van der Corput) distribution
 weighted by the data's pdf to jitter the data points.
 """
 Base.@kwdef struct QuasirandomJitter <: JitterAlgorithm 
-	jitter_width::Union{Makie.Automatic,Float64} = Makie.automatic
+	width::Union{Makie.Automatic,Float64} = Makie.automatic
 	gap::Float64 = 0.33
 end
 
@@ -57,12 +57,12 @@ function calculate!(buffer::AbstractVector{<: Point2}, alg::JitterAlgorithm, pos
 	xs = first.(positions)
 	ys = last.(positions)
 
-	width::Float64 = if alg.jitter_width === Makie.automatic
+	width::Float64 = if alg.width === Makie.automatic
 		uxs = unique(xs)
 		diffs = diff(sort(uxs))
 		isempty(diffs) ? one(eltype(diffs)) : minimum(diffs)
 	else
-		alg.jitter_width
+		alg.width
 	end
 
 	width_without_gap = width * (1 - alg.gap)
