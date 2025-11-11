@@ -12,7 +12,6 @@ import StatsBase:
 import KernelDensity
 import StableRNGs
 
-# this is subtyped by e.g. `SimpleBeeswarm` and `VerticallyChallengedBeeswarm`
 abstract type BeeswarmAlgorithm end
 
 include("algorithms/simple.jl")
