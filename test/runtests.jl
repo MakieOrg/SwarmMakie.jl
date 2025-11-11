@@ -76,24 +76,33 @@ include("reftest_utils.jl")
         return x, y, dodge
     end
 
-    reftest("quasirandom dodge") do
-        x, y, dodge = test_data_dodge()
-        f, _ = beeswarm(
-            x,
-            y;
-            dodge,
-            algorithm = :quasirandom,
-            seed = 123,
-            gap = 0.2,
-            color = dodge
-        )
-        barplot!(
-            [1, 1, 1, 2, 2, 2, 3, 3, 3],
-            [1, 2, 3, 2, 3, 4, 3, 4, 5],
-            dodge = [1, 2, 3, 1, 2, 3, 1, 2, 3],
-            alpha = 0.2,
-            color = [1, 2, 3, 1, 2, 3, 1, 2, 3],
-        )
-        f
+    for alg in [:quasirandom, :wilkinson, :default]
+        reftest("$alg dodge") do
+            x, y, dodge = test_data_dodge()
+            f, _ = beeswarm(
+                x,
+                y;
+                dodge,
+                algorithm = alg,
+                seed = 123,
+                gap = 0.2,
+                color = dodge
+            )
+            barplot!(
+                [1, 1, 1, 2, 2, 2, 3, 3, 3],
+                [1, 2, 3, 2, 3, 4, 3, 4, 5],
+                dodge = [1, 2, 3, 1, 2, 3, 1, 2, 3],
+                alpha = 0.2,
+                color = [1, 2, 3, 1, 2, 3, 1, 2, 3],
+            )
+            f
+        end
+
+        reftest("$alg dodge single-group") do
+            rng = StableRNGs.StableRNG(123)
+            x = ones(Int, 120)
+            y = [randn(rng, 40); randn(rng, 40) .+ 2; randn(rng, 40) .- 2]
+            beeswarm(x, y, dodge = repeat(1:3, inner = 40), algorithm = alg)
+        end
     end
 end

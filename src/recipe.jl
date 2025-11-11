@@ -146,42 +146,6 @@ function Makie.plot!(plot::Beeswarm)
     map!(plot, [:projected_points, :algorithm, :markersize, :direction, :converted_1, :width, :gap, :seed, :side, :dodge, :n_dodge, :dodge_gap], [:beeswarm, :output_space]) do projected, algorithm, markersize, direction, converted_1, width, gap, seed, side, dodge, n_dodge, dodge_gap
         resize!(buffer, length(projected))
 
-        # Apply dodge transformations if needed
-        xs_data = first.(converted_1)
-        ys_data = last.(converted_1)
-        
-        # Calculate base width (same logic as in algorithms)
-        _width::Float64 = if width === Makie.automatic
-            uxs = unique(xs_data)
-            diffs = diff(sort(uxs))
-            isempty(diffs) ? one(eltype(diffs)) : minimum(diffs)
-        else
-            width
-        end
-        
-        # Only compute dodge if dodge is not automatic
-        if dodge === Makie.automatic
-            # No dodging - use original positions
-            xs_final = xs_data
-            projected_final = projected
-            final_width = _width * (1 - gap)
-        else
-            # Compute dodged positions
-            xs_dodged, width_dodged = compute_x_and_width(xs_data, _width, gap, dodge, n_dodge, dodge_gap)
-            
-            # Also need to dodge the projected points if we're in pixel space
-            xs_projected = first.(projected)
-            ys_projected = last.(projected)
-            projected_dodged = Point2f.(xs_projected .+ (xs_dodged .- xs_data), ys_projected)
-            
-            xs_final = xs_dodged
-            projected_final = projected_dodged
-            final_width = width_dodged
-        end
-        
-        # Reconstruct the positions with final x-coordinates
-        converted_1_final = Point2f.(xs_final, ys_data)
-
         # If algorithm is a Symbol, construct the correct struct
         alg_obj::BeeswarmAlgorithm = if algorithm isa Symbol
             if algorithm === :default
@@ -203,9 +167,46 @@ function Makie.plot!(plot::Beeswarm)
 
         _output_space = output_space(alg_obj)
         
+        # Work in the appropriate space for this algorithm
+        positions = _output_space === :pixel ? projected : converted_1
+        
+        xs = first.(positions)
+        ys = last.(positions)
+        
+        # Calculate base width
+        _width::Float64 = if width === Makie.automatic
+            uxs = unique(xs)
+            diffs = diff(sort(uxs))
+            if isempty(diffs)
+                # Single x location
+                if _output_space === :pixel
+                    # use scene width as a heuristic
+                    scene = Makie.parent_scene(plot)
+                    width = scene.viewport[].widths[1]
+                else
+                    1.0
+                end
+            else
+                minimum(diffs)
+            end
+        else
+            width
+        end
+        
+        # Apply dodge if needed
+        if dodge === Makie.automatic
+            xs_final = xs
+            final_width = _width * (1 - gap)
+        else
+            xs_dodged, width_dodged = compute_x_and_width(xs, _width, gap, dodge, n_dodge, dodge_gap)
+            xs_final = xs_dodged
+            final_width = width_dodged
+        end
+        
+        # Reconstruct positions with final x-coordinates
+        positions_final = Point2.(xs_final, ys)
+        
         # Compute bin edges for each unique x position
-        # For data space algorithms, use data space edges
-        # For pixel space algorithms, use pixel space edges (but we'll compute from centers)
         unique_xs_final = unique(xs_final)
         
         # Create a mapping from x values to bin edges
@@ -218,33 +219,14 @@ function Makie.plot!(plot::Beeswarm)
         # Create bin_edges array matching the order of positions
         bin_edges = [x_to_edges[Float64(x)] for x in xs_final]
         
-        # For pixel space algorithms, we need to convert bin edges to pixel space
-        if _output_space === :pixel
-            # The projected positions already have the dodge shift applied
-            # We just need to compute the pixel width from the data width
-            # For pixel space algorithms, they don't actually use the width from bin_edges
-            # They only use the center, but we provide the edges anyway
-            xs_projected_final = first.(projected_final)
-            bin_edges_pixel = [(Float64(x), Float64(x)) for x in xs_projected_final]  # Just centers for now
-            
-            calculate!(
-                buffer,
-                alg_obj,
-                projected_final,
-                markersize,
-                side,
-                bin_edges_pixel,
-            )
-        else
-            calculate!(
-                buffer,
-                alg_obj,
-                converted_1_final,
-                markersize,
-                side,
-                bin_edges,
-            )
-        end
+        calculate!(
+            buffer,
+            alg_obj,
+            positions_final,
+            markersize,
+            side,
+            bin_edges,
+        )
 
         # if !isnothing(gutter)
         #     gutterize!(buffer, alg_obj, converted_1, direction, gutter, gutter_threshold)
