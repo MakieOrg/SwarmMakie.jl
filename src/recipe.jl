@@ -23,7 +23,7 @@ beeswarm(ones(100), randn(100); color = rand(RGBf, 100))
 """
 @recipe Beeswarm begin
     "The algorithm used to lay out the beeswarm markers."
-    algorithm = SimpleBeeswarm()
+    algorithm = :default
     "The side towards which markers should extend.  Can be `:left`, `:right`, or both."
     side = :both
     "Controls the direction of the beeswarm.  Can be `:y` (vertical) or `:x` (horizontal)."
@@ -32,6 +32,12 @@ beeswarm(ones(100), randn(100); color = rand(RGBf, 100))
     gutter = nothing
     "Emit a warning of the number of points added to a gutter per category exceeds the threshold."
     gutter_threshold = .5
+    "Width of the jitter columns in data space. By default the smallest difference between categories."
+    width = Makie.automatic
+    "Gap space reserved from jitter columns as a fraction of width."
+    gap = 0.33
+    "Random seed for jitter algorithms."
+    seed = nothing
     Makie.documented_attributes(Scatter)...
 end
 
@@ -94,21 +100,40 @@ function Makie.plot!(plot::Beeswarm)
 
     buffer = Point2f[]
 
-    map!(plot, [:projected_points, :algorithm, :markersize, :side, :direction, :gutter, :gutter_threshold, :converted_1], [:beeswarm, :output_space]) do projected, algorithm, markersize, side, direction, gutter, gutter_threshold, converted_1
+    map!(plot, [:projected_points, :algorithm, :markersize, :side, :direction, :gutter, :gutter_threshold, :converted_1, :width, :gap, :seed], [:beeswarm, :output_space]) do projected, algorithm, markersize, side, direction, gutter, gutter_threshold, converted_1, width, gap, seed
         resize!(buffer, length(projected))
 
-        _output_space = output_space(algorithm)
+        # If algorithm is a Symbol, construct the correct struct
+        alg_obj::BeeswarmAlgorithm = if algorithm isa Symbol
+            if algorithm === :default
+                SimpleBeeswarm()
+            elseif algorithm == :wilkinson
+                WilkinsonBeeswarm()
+            elseif algorithm == :uniform
+                UniformJitter(width=width, gap=gap, seed=seed)
+            elseif algorithm == :pseudorandom
+                PseudorandomJitter(width=width, gap=gap, seed=seed)
+            elseif algorithm == :quasirandom
+                QuasirandomJitter(width=width, gap=gap)
+            else
+                error("Unknown algorithm symbol: $algorithm")
+            end
+        else
+            algorithm
+        end
+
+        _output_space = output_space(alg_obj)
 
         calculate!(
             buffer,
-            algorithm,
+            alg_obj,
             _output_space === :pixel ? projected : converted_1,
             markersize,
-            side
+            side,
         )
 
         if !isnothing(gutter)
-            gutterize!(buffer, algorithm, converted_1, direction, gutter, gutter_threshold)
+            gutterize!(buffer, alg_obj, converted_1, direction, gutter, gutter_threshold)
         end
 
         return buffer, _output_space

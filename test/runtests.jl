@@ -38,34 +38,34 @@ include("reftest_utils.jl")
     end
 
     reftest("wilkinson") do
-        beeswarm(test_data()..., algorithm = WilkinsonBeeswarm())
+        beeswarm(test_data()..., algorithm = :wilkinson)
     end
 
     reftest("wilkinson array color") do
         # to see that order is preserved
         x, y = test_data()
-        beeswarm(x, y, algorithm = WilkinsonBeeswarm(), color = 1:length(x), colormap = :Spectral)
+        beeswarm(x, y, algorithm = :wilkinson, color = 1:length(x), colormap = :Spectral)
     end
 
     reftest("wilkinson markersize 15") do
-        beeswarm(test_data()..., algorithm = WilkinsonBeeswarm(), markersize = 15)
+        beeswarm(test_data()..., algorithm = :wilkinson, markersize = 15)
     end
 
     reftest("uniform jitter") do
-        beeswarm(test_data()..., algorithm = UniformJitter(; seed = 123))
+        beeswarm(test_data()..., algorithm = :uniform, seed = 123)
     end
 
     reftest("uniform jitter one group") do
         _, y = test_data()
-        beeswarm(ones(size(y)), y, algorithm = UniformJitter(; seed = 123))
+        beeswarm(ones(size(y)), y, algorithm = :uniform, seed = 123)
     end
 
     reftest("quasirandom jitter") do
-        beeswarm(test_data()..., algorithm = QuasirandomJitter())
+        beeswarm(test_data()..., algorithm = :quasirandom)
     end
 
     reftest("pseudorandom jitter") do
-        beeswarm(test_data()..., algorithm = PseudorandomJitter(; seed = 123))
+        beeswarm(test_data()..., algorithm = :pseudorandom, seed = 123)
     end
 
 end
