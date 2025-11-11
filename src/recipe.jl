@@ -24,14 +24,16 @@ beeswarm(ones(100), randn(100); color = rand(RGBf, 100))
 @recipe Beeswarm begin
     "The algorithm used to lay out the beeswarm markers."
     algorithm = :default
-    "The side towards which markers should extend.  Can be `:left`, `:right`, or both."
-    side = :both
+    # TODO: Was not working correctly
+    # "The side towards which markers should extend.  Can be `:left`, `:right`, or both."
+    # side = :both
     "Controls the direction of the beeswarm.  Can be `:y` (vertical) or `:x` (horizontal)."
     direction = :y
-    "Creates a gutter of a desired size around each category.  Gutter size is always in data space."
-    gutter = nothing
-    "Emit a warning of the number of points added to a gutter per category exceeds the threshold."
-    gutter_threshold = .5
+    # TODO: gutter should be reimplemented considering `width` (plus methods to apply to points outside)
+    # "Creates a gutter of a desired size around each category.  Gutter size is always in data space."
+    # gutter = nothing
+    # "Emit a warning of the number of points added to a gutter per category exceeds the threshold."
+    # gutter_threshold = .5
     "Width of the jitter columns in data space. By default the smallest difference between categories."
     width = Makie.automatic
     "Gap space reserved from jitter columns as a fraction of width."
