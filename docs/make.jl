@@ -72,7 +72,6 @@ makedocs(;
     pages=[
         "Introduction" => "introduction.md",
         "Algorithms" => "algorithms.md",
-        "Gutters" => "gutters.md",
         "Examples" => [
             "examples/examples.md",
             "Nonlinear scales" => "examples/scales.md",
