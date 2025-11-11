@@ -24,9 +24,8 @@ beeswarm(ones(100), randn(100); color = rand(RGBf, 100))
 @recipe Beeswarm begin
     "The algorithm used to lay out the beeswarm markers."
     algorithm = :default
-    # TODO: Was not working correctly
-    # "The side towards which markers should extend.  Can be `:left`, `:right`, or both."
-    # side = :both
+    "The side towards which markers should extend.  Can be `:left`, `:right`, or both."
+    side = :both
     "Controls the direction of the beeswarm.  Can be `:y` (vertical) or `:x` (horizontal)."
     direction = :y
     # TODO: gutter should be reimplemented considering `width` (plus methods to apply to points outside)
@@ -77,11 +76,12 @@ function Makie.data_limits(bs::Beeswarm)
     range_1 = if length(categories) == 1
         (only(categories) - 0.5, only(categories) + 0.5)
     else
-        mindiff = if isnothing(bs.gutter[])
-            minimum(diff(categories))
-        else
-            bs.gutter[]  
-        end
+        # mindiff = if isnothing(bs.gutter[])
+        #     minimum(diff(categories))
+        # else
+        #     bs.gutter[]  
+        # end
+        mindiff = minimum(diff(categories))
         (first(categories) - mindiff/2, last(categories) + mindiff/2)
     end
     range_2 = extrema(p[2] for p in points)
@@ -102,7 +102,7 @@ function Makie.plot!(plot::Beeswarm)
 
     buffer = Point2f[]
 
-    map!(plot, [:projected_points, :algorithm, :markersize, :side, :direction, :gutter, :gutter_threshold, :converted_1, :width, :gap, :seed], [:beeswarm, :output_space]) do projected, algorithm, markersize, side, direction, gutter, gutter_threshold, converted_1, width, gap, seed
+    map!(plot, [:projected_points, :algorithm, :markersize, :direction, :converted_1, :width, :gap, :seed, :side], [:beeswarm, :output_space]) do projected, algorithm, markersize, direction, converted_1, width, gap, seed, side
         resize!(buffer, length(projected))
 
         # If algorithm is a Symbol, construct the correct struct
@@ -134,9 +134,9 @@ function Makie.plot!(plot::Beeswarm)
             side,
         )
 
-        if !isnothing(gutter)
-            gutterize!(buffer, alg_obj, converted_1, direction, gutter, gutter_threshold)
-        end
+        # if !isnothing(gutter)
+        #     gutterize!(buffer, alg_obj, converted_1, direction, gutter, gutter_threshold)
+        # end
 
         return buffer, _output_space
     end
