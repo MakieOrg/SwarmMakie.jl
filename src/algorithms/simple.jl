@@ -2,20 +2,20 @@
 # This algorithm was contributed by Julius Krumbiegel (@jkrumbiegel) in PR #29.
 
 """
-    SimpleBeeswarm2()
+    SimpleBeeswarm()
 
 A simple beeswarm implementation, that minimizes overlaps. This is the 
 default algorithm used in `beeswarm`.
 
 This algorithm dodges in `x` but preserves the exact `y` coordinate of each point.
-If you don't want to preserve the y coordinate, check out [`WilkinsonBeeswarm`](@ref).
+If you want a more organized appearance and don't need to preserve the exact y coordinates, you can try [`WilkinsonBeeswarm`](@ref).
 """
-struct SimpleBeeswarm2 <: BeeswarmAlgorithm
+struct SimpleBeeswarm <: BeeswarmAlgorithm
 end
 
-export SimpleBeeswarm2
+export SimpleBeeswarm
 
-function calculate!(buffer::AbstractVector{<: Point2}, alg::SimpleBeeswarm2, positions::AbstractVector{<: Point2}, markersize, side::Symbol)
+function calculate!(buffer::AbstractVector{<: Point2}, alg::SimpleBeeswarm, positions::AbstractVector{<: Point2}, markersize, side::Symbol)
     ys = last.(positions)
     xs = first.(positions)
 
@@ -38,7 +38,7 @@ function calculate!(buffer::AbstractVector{<: Point2}, alg::SimpleBeeswarm2, pos
         if isempty(ys_sorted)
             continue
         else
-            xs[group] .= simple_beeswarm2(ys_sorted, ms)[invperm(perm)]
+            xs[group] .= simple_beeswarm(ys_sorted, ms)[invperm(perm)]
         end
     end
     
@@ -49,7 +49,7 @@ absmin(a, b) = abs(a) < abs(b) ? a : b
 
 covers_zero(a, b) = a <= 0 && b >= 0
 
-function simple_beeswarm2(sorted_ys, markersize)
+function simple_beeswarm(sorted_ys, markersize)
     @assert issorted(sorted_ys)
     xs = zeros(length(sorted_ys))
 

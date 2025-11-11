@@ -27,7 +27,7 @@ fig
 
 ```@docs; canonical=false
 SimpleBeeswarm
-SimpleBeeswarm2
+SimpleBeeswarm
 WilkinsonBeeswarm
 NoBeeswarm
 ```

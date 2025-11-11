@@ -23,7 +23,7 @@ beeswarm(ones(100), randn(100); color = rand(RGBf, 100))
 """
 @recipe Beeswarm begin
     "The algorithm used to lay out the beeswarm markers."
-    algorithm = SimpleBeeswarm2()
+    algorithm = SimpleBeeswarm()
     "The side towards which markers should extend.  Can be `:left`, `:right`, or both."
     side = :both
     "Controls the direction of the beeswarm.  Can be `:y` (vertical) or `:x` (horizontal)."
