@@ -94,24 +94,36 @@ function Makie.plot!(plot::Beeswarm)
 
     buffer = Point2f[]
 
-    map!(plot, [:projected_points, :algorithm, :markersize, :side, :direction, :gutter, :gutter_threshold, :converted_1], :beeswarm) do projected, algorithm, markersize, side, direction, gutter, gutter_threshold, converted_1
+    map!(plot, [:projected_points, :algorithm, :markersize, :side, :direction, :gutter, :gutter_threshold, :converted_1], [:beeswarm, :output_space]) do projected, algorithm, markersize, side, direction, gutter, gutter_threshold, converted_1
         resize!(buffer, length(projected))
-        calculate!(buffer, algorithm, projected, markersize, side)
+
+        _output_space = output_space(algorithm)
+
+        calculate!(
+            buffer,
+            algorithm,
+            _output_space === :pixel ? projected : converted_1,
+            markersize,
+            side
+        )
 
         if !isnothing(gutter)
             gutterize!(buffer, algorithm, converted_1, direction, gutter, gutter_threshold)
         end
-        return buffer
+
+        return buffer, _output_space
     end
 
     scatter!(
         plot,
         plot.attributes,
         plot.beeswarm;
-        space = :pixel,
+        space = plot.output_space,
     )
     return
 end
+
+output_space(_) = :pixel
 
 # This function implements "gutters", or regions around each category where points are not allowed to go.
 function gutterize!(point_buffer, algorithm::BeeswarmAlgorithm, positions, direction, gutter, gutter_threshold)
