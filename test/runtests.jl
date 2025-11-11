@@ -47,6 +47,13 @@ include("reftest_utils.jl")
         beeswarm(x, y, algorithm = :wilkinson, color = 1:length(x), colormap = :Spectral)
     end
 
+    reftest("wilkinson sides") do
+        x, y = test_data()
+        f, _ = beeswarm(x, y, algorithm = :wilkinson, color = :red, side = :left)
+        beeswarm!(x, y .+ 1, algorithm = :wilkinson, color = :blue, side = :right)
+        f
+    end
+
     reftest("wilkinson markersize 15") do
         beeswarm(test_data()..., algorithm = :wilkinson, markersize = 15)
     end

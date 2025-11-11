@@ -143,11 +143,9 @@ We force the points to dodge each other by `markersize`.
                 current_y
                 )
         elseif side == :left
-            ## Update the buffer array.
-            buffer[idxs_by_position] .= Point2f.(((1:length(idxs_by_position))) .* markersize .- markersize/2 .+ first.(view(positions, idxs_by_position)), current_y)
-        elseif side == :right
-            ## Update the buffer array.
             buffer[idxs_by_position] .= Point2f.(((1:length(idxs_by_position))) .* (-markersize) .+ markersize/2 .+ first.(view(positions, idxs_by_position)), current_y)
+        elseif side == :right
+            buffer[idxs_by_position] .= Point2f.(((1:length(idxs_by_position))) .* markersize .- markersize/2 .+ first.(view(positions, idxs_by_position)), current_y)
         end
     end
 end
