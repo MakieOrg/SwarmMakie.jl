@@ -44,7 +44,7 @@ other attributes (like color, size, etc.) are indexed by the order of the points
 This is why we've essentially reimplemented the histogram here, as opposed to using it from StatsBase.
 =#
 
-function calculate!(buffer::AbstractVector{<: Point2}, alg::WilkinsonBeeswarm, positions::AbstractVector{<: Point2}, markersize, side::Symbol)
+function calculate!(buffer::AbstractVector{<: Point2}, alg::WilkinsonBeeswarm, positions::AbstractVector{<: Point2}, markersize, side::Symbol, bin_edges::AbstractVector{<: Tuple{Float64, Float64}})
     @debug "Calculating..."
     # Here, we need to find each unique x-value, which indicates a different group or category.
     xs = first.(positions)

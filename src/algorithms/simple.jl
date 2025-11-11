@@ -15,7 +15,7 @@ end
 
 export SimpleBeeswarm
 
-function calculate!(buffer::AbstractVector{<: Point2}, alg::SimpleBeeswarm, positions::AbstractVector{<: Point2}, markersize, side::Symbol)
+function calculate!(buffer::AbstractVector{<: Point2}, alg::SimpleBeeswarm, positions::AbstractVector{<: Point2}, markersize, side::Symbol, bin_edges::AbstractVector{<: Tuple{Float64, Float64}})
     ys = last.(positions)
     xs = first.(positions)
 

@@ -68,4 +68,32 @@ include("reftest_utils.jl")
         beeswarm(test_data()..., algorithm = :pseudorandom, seed = 123)
     end
 
+    function test_data_dodge()
+        _x, _y = test_data()
+        x = repeat(_x, 3)
+        dodge = repeat(1:3, inner = length(_x))
+        y = repeat(_y, 3) .+ dodge
+        return x, y, dodge
+    end
+
+    reftest("quasirandom dodge") do
+        x, y, dodge = test_data_dodge()
+        f, _ = beeswarm(
+            x,
+            y;
+            dodge,
+            algorithm = :quasirandom,
+            seed = 123,
+            gap = 0.2,
+            color = dodge
+        )
+        barplot!(
+            [1, 1, 1, 2, 2, 2, 3, 3, 3],
+            [1, 2, 3, 2, 3, 4, 3, 4, 5],
+            dodge = [1, 2, 3, 1, 2, 3, 1, 2, 3],
+            alpha = 0.2,
+            color = [1, 2, 3, 1, 2, 3, 1, 2, 3],
+        )
+        f
+    end
 end

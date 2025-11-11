@@ -53,31 +53,33 @@ Base.@kwdef struct QuasirandomJitter <: JitterAlgorithm
 	gap::Float64 = 0.33
 end
 
-function calculate!(buffer::AbstractVector{<: Point2}, alg::JitterAlgorithm, positions::AbstractVector{<: Point2}, markersize, side::Symbol)
+function calculate!(buffer::AbstractVector{<: Point2}, alg::JitterAlgorithm, positions::AbstractVector{<: Point2}, markersize, side::Symbol, bin_edges::AbstractVector{<: Tuple{Float64, Float64}})
 	xs = first.(positions)
 	ys = last.(positions)
 
-	width::Float64 = if alg.width === Makie.automatic
-		uxs = unique(xs)
-		diffs = diff(sort(uxs))
-		isempty(diffs) ? one(eltype(diffs)) : minimum(diffs)
-	else
-		alg.width
+	# Use the bin edges to determine width for each unique x value
+	# All points with the same x should have the same bin edges
+	unique_xs = unique(xs)
+	x_to_width = Dict{Float64, Float64}()
+	for x in unique_xs
+		idx = findfirst(==(x), xs)
+		edge_low, edge_high = bin_edges[idx]
+		x_to_width[x] = edge_high - edge_low
 	end
 
-	width_without_gap = width * (1 - alg.gap)
-
-	for x_val in unique(xs)
+	for x_val in unique_xs
 		# Isolate the indices of this particular group
 		group = xs .== x_val
+		width_for_group = x_to_width[x_val]
+		
 		# Extract the marker size
-	        ms = if markersize isa Number
-	            markersize
-	        else
-	            view(markersize, group)
-	        end
+        ms = if markersize isa Number
+            markersize
+        else
+            view(markersize, group)
+        end
 		# Assign the jittered values to the buffer
-		@views buffer[group] .= Point2f.(xs[group] .+ width_without_gap .* create_jitter_array(ys[group], alg), ys[group])
+		@views buffer[group] .= Point2f.(xs[group] .+ width_for_group .* create_jitter_array(ys[group], alg), ys[group])
 	end
 end
 
