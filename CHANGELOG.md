@@ -9,3 +9,4 @@
 - **Breaking**: The jitter algorithm structs don't take `jitter_width` and `clamped_portion` anymore and in general work differently than before. They now spread points to a width in data space that is determined by the distance between categories, similar to how `barplot` does it (so the width gets smaller when dodging is used, for example).
 - Jitter algorithms now use StableRNGs for reproducibility across Julia versions and the new attribute `beeswarm(...; seed = 123)` can be used to fix their output.
 - Added a `dodge` attribute that works similar to `barplot`.
+- Fixed `direction = :x` for all algorithms and AlgebraOfGraphics.
