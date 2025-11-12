@@ -28,7 +28,7 @@ A jitter algorithm that uses a uniform distribution to create the jitter.
 """
 Base.@kwdef struct UniformJitter <: JitterAlgorithm 
 	width::Union{Makie.Automatic,Float64} = Makie.automatic
-	gap::Float64 = 0.33
+	gap::Float64
 	seed::Union{Nothing,Int} = nothing
 end
 """
@@ -39,7 +39,7 @@ A pseudorandom distribution is a uniform distribution weighted by the PDF of the
 """
 Base.@kwdef struct PseudorandomJitter <: JitterAlgorithm 
 	width::Union{Makie.Automatic,Float64} = Makie.automatic
-	gap::Float64 = 0.33
+	gap::Float64
 	seed::Union{Nothing,Int} = nothing
 end
 """
@@ -50,7 +50,7 @@ weighted by the data's pdf to jitter the data points.
 """
 Base.@kwdef struct QuasirandomJitter <: JitterAlgorithm 
 	width::Union{Makie.Automatic,Float64} = Makie.automatic
-	gap::Float64 = 0.33
+	gap::Float64
 end
 
 function calculate!(buffer::AbstractVector{<: Point2}, alg::JitterAlgorithm, positions::AbstractVector{<: Point2}, markersize, side::Symbol, bin_edges::AbstractVector{<: Tuple{Float64, Float64}})
