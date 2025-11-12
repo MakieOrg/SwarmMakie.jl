@@ -37,6 +37,10 @@ include("reftest_utils.jl")
         beeswarm(test_data()..., markersize = 12)
     end
 
+    reftest("none") do
+        beeswarm(test_data()...; algorithm = :none)
+    end
+
     reftest("wilkinson") do
         beeswarm(test_data()..., algorithm = :wilkinson)
     end

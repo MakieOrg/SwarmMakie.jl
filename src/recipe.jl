@@ -150,6 +150,8 @@ function Makie.plot!(plot::Beeswarm)
         alg_obj::BeeswarmAlgorithm = if algorithm isa Symbol
             if algorithm === :default
                 SimpleBeeswarm()
+            elseif algorithm === :none
+                NoBeeswarm()
             elseif algorithm == :wilkinson
                 WilkinsonBeeswarm()
             elseif algorithm == :uniform
