@@ -152,7 +152,18 @@ function compute_x_and_width(x, width, gap, dodge, n_dodge, dodge_gap)
 end
 
 function Makie.plot!(plot::Beeswarm)
-    Makie.register_projected_positions!(plot, Point2f; input_name = :converted_1, output_name = :projected_points, output_space = :pixel, input_space = :data)
+    # When direction is :x, we need to flip the points so that projection works correctly
+    # (projection expects y to be the category axis for vertical plots, x for horizontal)
+    map!(plot, [:converted_1, :direction], :flipped_for_projection) do converted, direction
+        if direction === :x
+            # Flip x and y so projection treats y as categories, x as values
+            return reverse.(converted)
+        else
+            return converted
+        end
+    end
+    
+    Makie.register_projected_positions!(plot, Point2f; input_name = :flipped_for_projection, output_name = :projected_points, output_space = :pixel, input_space = :data)
 
     buffer = Point2f[]
 
@@ -183,7 +194,15 @@ function Makie.plot!(plot::Beeswarm)
         _output_space = output_space(alg_obj)
         
         # Work in the appropriate space for this algorithm
-        positions = _output_space === :pixel ? projected : converted_1
+        # For direction :x, we need to flip back for the algorithm (it expects categories on x)
+        # For pixel space, use projected points (which may be flipped for projection)
+        # For data space, use converted points (not flipped)
+        if direction === :x
+            # Flip back so algorithm sees categories on x, values on y
+            positions = _output_space === :pixel ? reverse.(projected) : converted_1
+        else
+            positions = _output_space === :pixel ? projected : converted_1
+        end
         
         xs = first.(positions)
         ys = last.(positions)
@@ -243,8 +262,13 @@ function Makie.plot!(plot::Beeswarm)
             bin_edges,
         )
 
+        # If direction is :x, flip the output buffer back
+        if direction === :x
+            buffer .= reverse.(buffer)
+        end
+
         # if !isnothing(gutter)
-        #     gutterize!(buffer, alg_obj, converted_1, direction, gutter, gutter_threshold)
+        #     gutterize!(buffer, alg_obj, positions, direction, gutter, gutter_threshold)
         # end
 
         return buffer, _output_space
