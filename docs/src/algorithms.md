@@ -13,7 +13,7 @@ Here's an overview of all the available algorithms. Each of the built-in algorit
 ```@example all_algorithms
 using SwarmMakie, CairoMakie
 
-algorithms = [:default, :wilkinson, :uniform, :pseudorandom, :quasirandom, :none]
+algorithms = [:default, :wilkinson, :none, :uniform, :pseudorandom, :quasirandom]
 fig = Figure(; size = (800, 450))
 xs = rand(1:3, 400); ys = randn(400)
 
