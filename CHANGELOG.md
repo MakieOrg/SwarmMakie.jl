@@ -10,3 +10,4 @@
 - Jitter algorithms now use StableRNGs for reproducibility across Julia versions and the new attribute `beeswarm(...; seed = 123)` can be used to fix their output.
 - Added a `dodge` attribute that works similar to `barplot`.
 - Fixed `direction = :x` for all algorithms and AlgebraOfGraphics.
+- Updated to Makie 0.24 (compute graph).
