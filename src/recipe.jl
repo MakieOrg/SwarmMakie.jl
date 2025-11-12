@@ -22,7 +22,16 @@ beeswarm(ones(100), randn(100); color = rand(RGBf, 100))
 ```
 """
 @recipe Beeswarm begin
-    "The algorithm used to lay out the beeswarm markers."
+    """
+    The algorithm used to lay out the beeswarm markers.
+    The built-in algorithms can be accessed with `Symbol` shorthands.
+    - `:default` - Beeswarm with preserved y coordinates and overlap avoidance (`SimpleBeeswarm()`)
+    - `:wilkinson` - Wilkinson's dot-stacking algorithm which does not preserve y (`WilkinsonBeeswarm()`)
+    - `:uniform` - Uniform random jitter (`UniformJitter()`)
+    - `:pseudorandom` - Random jitter scaled by density (`PseudorandomJitter()`)
+    - `:quasirandom` - Quasirandom (low-discrepancy) jitter
+    - `:none` - No displacement
+    """
     algorithm = :default
     "The side towards which markers should extend.  Can be `:left`, `:right`, or both."
     side = :both
@@ -37,7 +46,7 @@ beeswarm(ones(100), randn(100); color = rand(RGBf, 100))
     width = Makie.automatic
     "Gap space reserved from jitter columns as a fraction of width."
     gap = 0.2
-    "Random seed for jitter algorithms."
+    "Random seed for jitter algorithms. Internally, StableRNGs is used for random number generation so that results for a given seed are reproducible."
     seed = nothing
     """
     Dodge can be used to separate beeswarms drawn at the same position. For this
@@ -47,8 +56,7 @@ beeswarm(ones(100), randn(100); color = rand(RGBf, 100))
     """
     dodge = Makie.automatic
     """
-    Sets the maximum integer for `dodge`. This sets how many beeswarms can be placed
-    at a given position, controlling their width.
+    Sets the number of groups participating in the dodge. Can be increased if not all groups are present in the `dodge` vector.
     """
     n_dodge = Makie.automatic
     "Sets the gap between dodged beeswarms relative to the size of the dodged beeswarms."
