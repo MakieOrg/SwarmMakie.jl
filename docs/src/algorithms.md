@@ -8,17 +8,14 @@ In addition, SwarmMakie offers jittered scatter plots as algorithms to `beeswarm
 
 ## Comparison
 
-Here's a comparison of all the available algorithms:
+Here's a comparison of all the available algorithms. Each of the built-in algorithms can be accessed with a `Symbol` as a shorthand.
 
 ```@example all_algorithms
 using SwarmMakie, CairoMakie
-algorithms = [NoBeeswarm() SimpleBeeswarm() WilkinsonBeeswarm(); UniformJitter() PseudorandomJitter() QuasirandomJitter()]
+algorithms = [:none :default :wilkinson; :uniform :pseudorandom :quasirandom]
 fig = Figure(; size = (800, 450))
 xs = rand(1:3, 400); ys = randn(400)
-ax_plots = [beeswarm(fig[Tuple(idx)...], xs, ys; color = xs, algorithm = algorithms[idx], markersize = 3, axis = (; title = string(algorithms[idx]))) for idx in CartesianIndices(algorithms)]
-jitter_plots = getproperty.(ax_plots[2, :], :plot)
-setproperty!.(jitter_plots, :markersize, 7)
-setproperty!.(jitter_plots, :alpha, 0.3)
+ax_plots = [beeswarm(fig[Tuple(idx)...], xs, ys; color = xs, algorithm = algorithms[idx], markersize = 4, axis = (; title = repr(algorithms[idx]))) for idx in CartesianIndices(algorithms)]
 fig
 ```
 
@@ -27,19 +24,15 @@ fig
 
 ```@docs; canonical=false
 SimpleBeeswarm
-SimpleBeeswarm
 WilkinsonBeeswarm
 NoBeeswarm
 ```
-
-Code exists for the algorithm suggested by Michael Borregaard in [this StatsPlots.jl PR](https://github.com/JuliaPlots/StatsPlots.jl/pull/61#issuecomment-328853342), but it is currently nonfunctional.  If you'd like to take a crack at getting it working, please do!
 
 ```@docs; canonical=false
 UniformJitter
 PseudorandomJitter
 QuasirandomJitter
 ```
-
 
 We also welcome any new algorithms you may have in mind.  Just open a PR!
 
