@@ -35,6 +35,11 @@ include("reftest_utils.jl")
         beeswarm(x, y, alpha = 0.3)
     end
 
+    reftest("default direction x") do
+        x, y = test_data()
+        beeswarm(x, y, direction = :x)
+    end
+
     reftest("default scalar markersize 15") do
         beeswarm(test_data()..., markersize = 15)
     end
@@ -79,6 +84,10 @@ include("reftest_utils.jl")
 
     reftest("quasirandom jitter") do
         beeswarm(test_data()..., algorithm = :quasirandom)
+    end
+
+    reftest("quasirandom jitter direction x") do
+        beeswarm(test_data()..., algorithm = :quasirandom, direction = :x)
     end
 
     reftest("pseudorandom jitter") do
