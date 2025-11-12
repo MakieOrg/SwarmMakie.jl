@@ -1,6 +1,6 @@
 name = "SwarmMakie"
 uuid = "0b1c068e-6a84-4e66-8136-5c95cafa83ed"
-version = "0.1.5"
+version = "0.2.0"
 authors = ["Anshul Singhvi <anshulsinghvi@gmail.com>", "Jacob Zelko <jacobszelko@gmail.com>", "Michael Krabbe Borregaard <mkborregaard@snm.ku.dk>", "and contributors"]
 
 [deps]
@@ -17,9 +17,9 @@ AlgebraOfGraphics = "cbdf2221-f076-402e-a563-3d30da359d67"
 AlgebraOfGraphicsExt = "AlgebraOfGraphics"
 
 [compat]
-AlgebraOfGraphics = "0.9.5, 0.10, 0.11"
+AlgebraOfGraphics = "0.11"
 KernelDensity = "0.6"
-Makie = "0.20, 0.21, 0.22, 0.23, 0.24"
-StableRNGs = "1.0.4"
+Makie = "0.24"
+StableRNGs = "1"
 StatsBase = "0.34"
 julia = "1.10"
