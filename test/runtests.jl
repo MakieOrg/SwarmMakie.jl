@@ -3,6 +3,7 @@ using Makie.Colors
 using Test
 using PixelMatch
 using StableRNGs
+import AlgebraOfGraphics as AoG
 
 
 include("reftest_utils.jl")
@@ -115,5 +116,25 @@ include("reftest_utils.jl")
             y = [randn(rng, 40); randn(rng, 40) .+ 2; randn(rng, 40) .- 2]
             beeswarm(x, y, dodge = repeat(1:3, inner = 40), algorithm = alg)
         end
+    end
+
+    reftest("AoG basic") do
+        x, y = test_data()
+        spec = AoG.mapping(x, y, color = x => AoG.nonnumeric) * AoG.visual(Beeswarm)
+        AoG.draw(spec)
+    end
+
+    reftest("AoG direction x") do
+        x, y = test_data()
+        spec = AoG.mapping(x, y, color = x => AoG.nonnumeric) *
+            AoG.visual(Beeswarm, algorithm = :quasirandom, direction = :x)
+        AoG.draw(spec)
+    end
+
+    reftest("AoG dodge") do
+        x, y, dodge = test_data_dodge()
+        spec = AoG.mapping(x, y, color = x, dodge = dodge => AoG.nonnumeric) *
+            AoG.visual(Beeswarm, algorithm = :quasirandom)
+        AoG.draw(spec)
     end
 end
