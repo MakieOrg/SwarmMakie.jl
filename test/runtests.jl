@@ -30,6 +30,11 @@ include("reftest_utils.jl")
         beeswarm(x, y, color = 1:length(x), colormap = :Spectral)
     end
 
+    reftest("default alpha") do
+        x, y = test_data()
+        beeswarm(x, y, alpha = 0.3)
+    end
+
     reftest("default scalar markersize 15") do
         beeswarm(test_data()..., markersize = 15)
     end
