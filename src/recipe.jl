@@ -7,18 +7,23 @@ export NoBeeswarm
 # In this file, we define the `Beeswarm` recipe.
 
 """
-    beeswarm(x, y)
-    beeswarm(positions)
+    beeswarm(groups, values)
 
-`beeswarm` is a `PointBased` recipe like `scatter`, accepting all of `scatter`'s input.  
-
-It displaces points which would otherwise overlap in the x-direction by binning in the y direction. 
+`beeswarm` is a variant of `scatter` where values are plotted in several groups.
+In a normal scatter plot, each group would form a line of possibly overlapping points,
+where especially for larger numbers of points it becomes hard to tell how many points there
+are in each group. The `beeswarm` recipe moves the points off the group line such that
+they overlap less or not at all. There are different offset algorithms to choose from,
+each with individual visual characteristics.
 
 ## Example
 
 ```julia
 using Makie, SwarmMakie
-beeswarm(ones(100), randn(100); color = rand(RGBf, 100))
+
+categories = repeat(1:3, inner = 50)
+values = [randn(50); randn(50) .- 2; randn(50) .* 2 .+ 2]
+beeswarm(categories, values)
 ```
 """
 @recipe Beeswarm begin
