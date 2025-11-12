@@ -2,38 +2,38 @@
 
 ## Multiple variables with colors
 
-````@example examples
+```@example examples
 using CairoMakie, SwarmMakie
 xs = rand(1:4, 500)
 ys = randn(500) .+ xs
 fig, ax, plt = beeswarm(xs, ys, color = xs, colormap = :isoluminant_cm_70_c39_n256)
-````
+```
 
 Now, we can also pass categorical colormaps:
 
-````@example examples
+```@example examples
 plt.colormap[] = Makie.Categorical(Makie.wong_colors()[1:4])
-````
+```
 
 and the figure is:
 
-````@example examples
+```@example examples
 fig
-````
+```
 
 ## Palmer Penguins
 
-````@example examples
+```@example examples
 using AlgebraOfGraphics, CairoMakie, SwarmMakie
 
 data(AlgebraOfGraphics.penguins()) *
     mapping(:species, :bill_depth_mm, color=:sex) *
     visual(Beeswarm) |> draw
-````
+```
 
 ## SwarmMakie logo
 
-````@example examples
+```@example examples
 using CairoMakie, SwarmMakie
 using RDatasets, DataFrames
 iris = dataset("datasets", "iris")
@@ -49,11 +49,11 @@ a.scene.backgroundcolor[] = RGBAf(1,1,1,0)
 hidedecorations!(a)
 hidespines!(a)
 f
-````
+```
 
 ## Wilkinson's dot histogram
 
-````@example examples
+```@example examples
 using CairoMakie, SwarmMakie
 using RDatasets, DataFrames
 mtcars = dataset("datasets", "mtcars")
@@ -67,6 +67,6 @@ f, a, p = beeswarm(
 p.side = :both
 p.direction = :x
 f
-````
+```
 
 Note that to use `side != :both`, you will have to set the limits of the axis explicitly.
