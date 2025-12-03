@@ -7,54 +7,76 @@ export NoBeeswarm
 # In this file, we define the `Beeswarm` recipe.
 
 """
-    beeswarm(x, y)
-    beeswarm(positions)
+    beeswarm(groups, values)
 
-`beeswarm` is a `PointBased` recipe like `scatter`, accepting all of `scatter`'s input.  
-
-It displaces points which would otherwise overlap in the x-direction by binning in the y direction. 
-
-Specific attributes to `beeswarm` are:
-- `algorithm = SimpleBeeswarm2()`: The algorithm used to lay out the beeswarm markers.
-- `side = :both`: The side towards which markers should extend.  Can be `:left`, `:right`, or both.  
-- `direction = :y`: Controls the direction of the beeswarm.  Can be `:y` (vertical) or `:x` (horizontal).
-- `gutter = nothing`: Creates a gutter of a desired size around each category.  Gutter size is always in data space.
-- `gutter_threshold = .5`: Emit a warning of the number of points added to a gutter per category exceeds the threshold.
-
-## Arguments
-$(Makie.ATTRIBUTES)
+`beeswarm` is a variant of `scatter` where values are plotted in several groups.
+In a normal scatter plot, each group would form a line of possibly overlapping points,
+where especially for larger numbers of points it becomes hard to tell how many points there
+are in each group. The `beeswarm` recipe moves the points off the group line such that
+they overlap less or not at all. There are different offset algorithms to choose from,
+each with individual visual characteristics.
 
 ## Example
 
 ```julia
 using Makie, SwarmMakie
-beeswarm(ones(100), randn(100); color = rand(RGBf, 100))
+
+categories = repeat(1:3, inner = 50)
+values = [randn(50); randn(50) .- 2; randn(50) .* 2 .+ 2]
+beeswarm(categories, values)
 ```
 """
-@recipe(Beeswarm, positions) do scene
-    return merge(
-        Attributes(
-            algorithm = SimpleBeeswarm2(),
-            side = :both,
-            direction = :y,
-            gutter = nothing,
-            gutter_threshold = .5,
-        ),
-        default_theme(scene, Scatter),
-    )
+@recipe Beeswarm begin
+    """
+    The algorithm used to lay out the beeswarm markers.
+    The built-in algorithms can be accessed with `Symbol` shorthands.
+    - `:default` - Beeswarm with preserved y coordinates and overlap avoidance (`SimpleBeeswarm()`)
+    - `:wilkinson` - Wilkinson's dot-stacking algorithm which does not preserve y (`WilkinsonBeeswarm()`)
+    - `:uniform` - Uniform random jitter (`UniformJitter()`)
+    - `:pseudorandom` - Random jitter scaled by density (`PseudorandomJitter()`)
+    - `:quasirandom` - Quasirandom (low-discrepancy) jitter
+    - `:none` - No displacement
+    """
+    algorithm = :default
+    "The side towards which markers should extend.  Can be `:left`, `:right`, or both."
+    side = :both
+    "Controls the direction of the beeswarm.  Can be `:y` (vertical) or `:x` (horizontal)."
+    direction = :y
+    # TODO: gutter should be reimplemented considering `width` (plus methods to apply to points outside)
+    # "Creates a gutter of a desired size around each category.  Gutter size is always in data space."
+    # gutter = nothing
+    # "Emit a warning of the number of points added to a gutter per category exceeds the threshold."
+    # gutter_threshold = .5
+    "Width of the jitter columns in data space. By default the smallest difference between categories."
+    width = Makie.automatic
+    "Gap space reserved from jitter columns as a fraction of width."
+    gap = 0.2
+    "Random seed for jitter algorithms. Internally, StableRNGs is used for random number generation so that results for a given seed are reproducible."
+    seed = nothing
+    """
+    Dodge can be used to separate beeswarms drawn at the same position. For this
+    each beeswarm is given an integer value corresponding to its position relative to
+    the given positions. E.g. with `positions = [1, 1, 1, 2, 2, 2]` we have
+    3 beeswarms at each position which can be separated by `dodge = [1, 2, 3, 1, 2, 3]`.
+    """
+    dodge = Makie.automatic
+    """
+    Sets the number of groups participating in the dodge. Can be increased if not all groups are present in the `dodge` vector.
+    """
+    n_dodge = Makie.automatic
+    "Sets the gap between dodged beeswarms relative to the size of the dodged beeswarms."
+    dodge_gap = 0.03
+    Makie.documented_attributes(Scatter)...
 end
 
 Makie.conversion_trait(::Type{<: Beeswarm}) = Makie.PointBased()
-
-# this is subtyped by e.g. `SimpleBeeswarm` and `VerticallyChallengedBeeswarm`
-abstract type BeeswarmAlgorithm end
 
 # This is mostly useful to test the recipe...
 "A simple no-op algorithm, which causes the scatter plot to be drawn as if you called `scatter` and not `beeswarm`."
 struct NoBeeswarm <: BeeswarmAlgorithm
 end
 
-function calculate!(buffer::AbstractVector{<: Point2}, alg::NoBeeswarm, positions::AbstractVector{<: Point2}, markersize, side::Symbol)
+function calculate!(buffer::AbstractVector{<: Point2}, alg::NoBeeswarm, positions::AbstractVector{<: Point2}, markersize, side::Symbol, bin_edges::AbstractVector{<: Tuple{Float64, Float64}})
     @debug "Calculating..."
     buffer .= positions
     return
@@ -76,16 +98,17 @@ end
 # equal space for all categories. If the beeswarm doesn't fit that, again, other
 # parameters have to be adjusted anway.
 function Makie.data_limits(bs::Beeswarm)
-    points = bs.converted[1][]
+    points = bs.converted[][1]
     categories = sort(unique(p[1] for p in points))
     range_1 = if length(categories) == 1
         (only(categories) - 0.5, only(categories) + 0.5)
     else
-        mindiff = if isnothing(bs.gutter[])
-            minimum(diff(categories))
-        else
-            bs.gutter[]  
-        end
+        # mindiff = if isnothing(bs.gutter[])
+        #     minimum(diff(categories))
+        # else
+        #     bs.gutter[]  
+        # end
+        mindiff = minimum(diff(categories))
         (first(categories) - mindiff/2, last(categories) + mindiff/2)
     end
     range_2 = extrema(p[2] for p in points)
@@ -101,93 +124,166 @@ end
 
 Makie.boundingbox(s::Beeswarm, space::Symbol = :data) = Makie.apply_transform_and_model(s, Makie.data_limits(s))
 
+# Dodge computation functions (adapted from barplot)
+scale_width(dodge_gap, n_dodge) = (1 - (n_dodge - 1) * dodge_gap) / n_dodge
+
+function shift_dodge(i, dodge_width, dodge_gap)
+    return (dodge_width - 1) / 2 + (i - 1) * (dodge_width + dodge_gap)
+end
+
+function compute_x_and_width(x, width, gap, dodge, n_dodge, dodge_gap)
+    width === Makie.automatic && (width = 1)
+    width *= 1 - gap
+    
+    if dodge === Makie.automatic
+        i_dodge = 1
+    elseif eltype(dodge) <: Integer
+        i_dodge = dodge
+    else
+        ArgumentError("The keyword argument `dodge` currently supports only `AbstractVector{<: Integer}`") |> throw
+    end
+    
+    n_dodge === Makie.automatic && (n_dodge = maximum(i_dodge))
+    
+    dodge_width = scale_width(dodge_gap, n_dodge)
+    shifts = shift_dodge.(i_dodge, dodge_width, dodge_gap)
+    
+    return x .+ width .* shifts, width * dodge_width
+end
+
 function Makie.plot!(plot::Beeswarm)
-    positions = plot.converted[1] # being PointBased, it should always receive a vector of Point2
-    @assert positions[] isa AbstractVector{<: Point2} "`positions` should be an `AbstractVector` of `Point2` after conversion, got type $(typeof(positions)).  If you have passed in `x, y, z` input, be aware that `beeswarm` only accepts 2-D input (`x, y`)."
-
-    # this is a bit risky but #YOLO
-    # we extract the plot's parent Scene, from which we can extract
-    # the viewport, i.e., pixelspace!
-    scene = Makie.parent_scene(plot)
-    # Now, we can extract the Scene's limits from the camera's projectionview.
-    # Note that this only works for 2-D Scenes, and gets us the transformed space limits,
-    # so if you're trying to run this in a scene with a `transform_func`, that's something to 
-    # be aware of.
-    final_widths = lift(scene.camera.projectionview) do pv
-        isnothing(pv) && return Vec2f(0)
-        xmin, xmax = minmax((((-1, 1) .- pv[1, 4]) ./ pv[1, 1])...)
-        ymin, ymax = minmax((((-1, 1) .- pv[2, 4]) ./ pv[2, 2])...)
-        return Makie.Vec2f(xmax - xmin, ymax - ymin)
-    end
-    # and its viewport (in case the scene changes size)
-    pixel_widths = @lift widths($(scene.viewport))
-    old_pixel_widths = Ref(pixel_widths[])
-    old_finalwidths = Ref(final_widths[])
-
-    should_update_based_on_zoom = Observable{Bool}(true)
-    onany(plot, final_widths, pixel_widths) do fw, pw # if we change more than 5%, recalculate.
-        if !all(isapprox.(fw, old_finalwidths[]; rtol = 0.1)) || !all(isapprox.(pw, old_pixel_widths[]; rtol = 0.05))
-            old_pixel_widths[] = pw
-            old_finalwidths[] = fw
-            notify(should_update_based_on_zoom)
+    # When direction is :x, we need to flip the points so that projection works correctly
+    # (projection expects y to be the category axis for vertical plots, x for horizontal)
+    map!(plot, [:converted_1, :direction], :flipped_for_projection) do converted, direction
+        if direction === :x
+            # Flip x and y so projection treats y as categories, x as values
+            return reverse.(converted)
+        else
+            return converted
         end
     end
-    notify(final_widths)
+    
+    Makie.register_projected_positions!(plot, Point2f; input_name = :flipped_for_projection, output_name = :projected_points, output_space = :pixel, input_space = :data)
 
-    # set up buffers
-    point_buffer = Observable{Vector{Point2f}}(zeros(Point2f, length(positions[])))
-    pixelspace_point_buffer = Observable{Vector{Point2f}}(zeros(Point2f, length(positions[])))
-    # when the positions change, we must update the buffer arrays
-    onany(plot, plot.converted[1], plot.algorithm, plot.transformation.transform_func, plot.markersize, plot.side, plot.direction, plot.gutter, plot.gutter_threshold, should_update_based_on_zoom) do positions, algorithm, tfunc, markersize, side, direction, gutter, gutter_threshold, _
-        @assert side in (:both, :left, :right) "side should be one of :both, :left, or :right, got $(side)"
-        @assert direction in (:x, :y) "direction should be one of :x or :y, got $(direction)"
-        if length(positions) != length(point_buffer[])
-            # recreate the point buffers if lengths have changed
-            point_buffer.val = copy(positions)
-            pixelspace_point_buffer.val = zeros(Point2f, length(positions))
-        end
-        # Apply nonlinear transform function if any
-        pixelspace_point_buffer.val .= Makie.apply_transform(tfunc, positions, :data)
-        # Project input positions from data space to pixel space
-        pixelspace_point_buffer.val .= Point2f.(Makie.project.((scene.camera,), :data, :pixel, direction == :y ? pixelspace_point_buffer.val : reverse.(pixelspace_point_buffer.val)))
-        # Calculate the beeswarm in pixel space and store it in `point_buffer.val`
-        calculate!(point_buffer.val, algorithm, direction == :y ? pixelspace_point_buffer.val : reverse.(pixelspace_point_buffer.val), markersize, side)
-        # Project the beeswarm back to data space and store it, again, in `point_buffer.val`
-        point_buffer.val .= Point2f.(Makie.project.((scene.camera,), :pixel, :data, direction == :y ? (point_buffer.val) : reverse.(point_buffer.val)))
-        # Finally, apply the inverse transform to move back into data space.
-        # TODO: remove this once we have `space==:transformed` in Makie.
-        point_buffer.val .= Makie.apply_transform(Makie.inverse_transform(tfunc), point_buffer.val, :data)
+    buffer = Point2f[]
 
-        # Method to create a gutter when a gutter is defined
-        # NOTE: Maybe turn this into a helper function?
+    map!(plot, [:projected_points, :algorithm, :markersize, :direction, :converted_1, :width, :gap, :seed, :side, :dodge, :n_dodge, :dodge_gap], [:beeswarm, :output_space]) do projected, algorithm, markersize, direction, converted_1, width, gap, seed, side, dodge, n_dodge, dodge_gap
+        resize!(buffer, length(projected))
 
-        if !isnothing(gutter)
-            gutterize!(point_buffer, algorithm, positions, direction, gutter, gutter_threshold)
+        # If algorithm is a Symbol, construct the correct struct
+        alg_obj::BeeswarmAlgorithm = if algorithm isa Symbol
+            if algorithm === :default
+                SimpleBeeswarm()
+            elseif algorithm === :none
+                NoBeeswarm()
+            elseif algorithm == :wilkinson
+                WilkinsonBeeswarm()
+            elseif algorithm == :uniform
+                UniformJitter(width=Makie.automatic, gap=gap, seed=seed)
+            elseif algorithm == :pseudorandom
+                PseudorandomJitter(width=Makie.automatic, gap=gap, seed=seed)
+            elseif algorithm == :quasirandom
+                QuasirandomJitter(width=Makie.automatic, gap=gap)
+            else
+                error("Unknown algorithm symbol: $algorithm")
+            end
+        else
+            algorithm
         end
 
+        _output_space = output_space(alg_obj)
+        
+        # Work in the appropriate space for this algorithm
+        # For direction :x, we need to flip back for the algorithm (it expects categories on x)
+        # For pixel space, use projected points (which may be flipped for projection)
+        # For data space, use converted points (not flipped)
+        if direction === :x
+            # Flip back so algorithm sees categories on x, values on y
+            positions = _output_space === :pixel ? reverse.(projected) : converted_1
+        else
+            positions = _output_space === :pixel ? projected : converted_1
+        end
+        
+        xs = first.(positions)
+        ys = last.(positions)
+        
+        # Calculate base width
+        _width::Float64 = if width === Makie.automatic
+            uxs = unique(xs)
+            diffs = diff(sort(uxs))
+            if isempty(diffs)
+                # Single x location
+                if _output_space === :pixel
+                    # use scene width as a heuristic
+                    scene = Makie.parent_scene(plot)
+                    width = scene.viewport[].widths[1]
+                else
+                    1.0
+                end
+            else
+                minimum(diffs)
+            end
+        else
+            width
+        end
+        
+        # Apply dodge if needed
+        if dodge === Makie.automatic
+            xs_final = xs
+            final_width = _width * (1 - gap)
+        else
+            xs_dodged, width_dodged = compute_x_and_width(xs, _width, gap, dodge, n_dodge, dodge_gap)
+            xs_final = xs_dodged
+            final_width = width_dodged
+        end
+        
+        # Reconstruct positions with final x-coordinates
+        positions_final = Point2.(xs_final, ys)
+        
+        # Compute bin edges for each unique x position
+        unique_xs_final = unique(xs_final)
+        
+        # Create a mapping from x values to bin edges
+        x_to_edges = Dict{Float64, Tuple{Float64, Float64}}()
+        for x in unique_xs_final
+            half_width = final_width / 2
+            x_to_edges[Float64(x)] = (Float64(x - half_width), Float64(x + half_width))
+        end
+        
+        # Create bin_edges array matching the order of positions
+        bin_edges = [x_to_edges[Float64(x)] for x in xs_final]
+        
+        calculate!(
+            buffer,
+            alg_obj,
+            positions_final,
+            markersize,
+            side,
+            bin_edges,
+        )
 
-        # Finally, update the scatter plot
-        notify(point_buffer)
+        # If direction is :x, flip the output buffer back
+        if direction === :x
+            buffer .= reverse.(buffer)
+        end
+
+        # if !isnothing(gutter)
+        #     gutterize!(buffer, alg_obj, positions, direction, gutter, gutter_threshold)
+        # end
+
+        return buffer, _output_space
     end
-    # create a set of Attributes that we can pass down
-    attrs = copy(plot.attributes)
-    pop!(attrs, :algorithm)
-    pop!(attrs, :side)
-    pop!(attrs, :direction)
-    pop!(attrs, :gutter)
-    pop!(attrs, :gutter_threshold)
-    # pop!(attrs, :space)
-    attrs[:space] = :data
-    attrs[:markerspace] = :pixel
-    # create the scatter plot
-    scatter_plot = scatter!(
+
+    scatter!(
         plot,
-        attrs,
-        point_buffer
+        plot.attributes,
+        plot.beeswarm;
+        space = plot.output_space,
     )
-    notify(should_update_based_on_zoom)
     return
 end
+
+output_space(_) = :pixel
 
 # This function implements "gutters", or regions around each category where points are not allowed to go.
 function gutterize!(point_buffer, algorithm::BeeswarmAlgorithm, positions, direction, gutter, gutter_threshold)
@@ -207,16 +303,16 @@ function gutterize!(point_buffer, algorithm::BeeswarmAlgorithm, positions, direc
         gutter_threshold_count = length(group_indices) * gutter_threshold
         gutter_pts = 0
         for idx in group_indices
-            pt = point_buffer.val[idx]
+            pt = point_buffer[idx]
             x = direction == :y ? pt[1] : pt[2]
             # Check if a point values between a acceptable range
             if x < (group - gutter)
                 # Left side of the gutter
-                point_buffer.val[idx] = direction == :y ? Point2f(group - gutter, pt[2]) : Point2f(pt[1], group - gutter)
+                point_buffer[idx] = direction == :y ? Point2f(group - gutter, pt[2]) : Point2f(pt[1], group - gutter)
                 gutter_pts += 1
             elseif x > (group + gutter)
                 # Right side of the gutter
-                point_buffer.val[idx] = direction == :y ? Point2f(group + gutter, pt[2]) : Point2f(pt[1], group + gutter)
+                point_buffer[idx] = direction == :y ? Point2f(group + gutter, pt[2]) : Point2f(pt[1], group + gutter)
                 gutter_pts += 1
             end
             idx += 1

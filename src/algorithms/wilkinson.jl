@@ -44,7 +44,7 @@ other attributes (like color, size, etc.) are indexed by the order of the points
 This is why we've essentially reimplemented the histogram here, as opposed to using it from StatsBase.
 =#
 
-function calculate!(buffer::AbstractVector{<: Point2}, alg::WilkinsonBeeswarm, positions::AbstractVector{<: Point2}, markersize, side::Symbol)
+function calculate!(buffer::AbstractVector{<: Point2}, alg::WilkinsonBeeswarm, positions::AbstractVector{<: Point2}, markersize, side::Symbol, bin_edges::AbstractVector{<: Tuple{Float64, Float64}})
     @debug "Calculating..."
     # Here, we need to find each unique x-value, which indicates a different group or category.
     xs = first.(positions)
@@ -143,11 +143,9 @@ We force the points to dodge each other by `markersize`.
                 current_y
                 )
         elseif side == :left
-            ## Update the buffer array.
-            buffer[idxs_by_position] .= Point2f.(((1:length(idxs_by_position))) .* markersize .- markersize/2 .+ first.(view(positions, idxs_by_position)), current_y)
-        elseif side == :right
-            ## Update the buffer array.
             buffer[idxs_by_position] .= Point2f.(((1:length(idxs_by_position))) .* (-markersize) .+ markersize/2 .+ first.(view(positions, idxs_by_position)), current_y)
+        elseif side == :right
+            buffer[idxs_by_position] .= Point2f.(((1:length(idxs_by_position))) .* markersize .- markersize/2 .+ first.(view(positions, idxs_by_position)), current_y)
         end
     end
 end

@@ -1,9 +1,8 @@
-/Manifest.toml
+**/Manifest.toml
 /docs/Manifest.toml
 /docs/build/
 /docs/package-lock.json
 /docs/src/source
 */node_modules/*
 .DS_Store
-
-docs/src/examples/examples.md
+.vscode

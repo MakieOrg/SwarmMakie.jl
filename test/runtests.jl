@@ -1,78 +1,154 @@
 using SwarmMakie, Makie, CairoMakie
 using Makie.Colors
 using Test
-using Random
-Random.seed!(123)
+using PixelMatch
+using StableRNGs
+import AlgebraOfGraphics as AoG
 
 
-const ALL_ALGORITHMS = [NoBeeswarm(), SimpleBeeswarm(), SimpleBeeswarm2(), WilkinsonBeeswarm(), UniformJitter(), PseudorandomJitter(), QuasirandomJitter()]
-
-colors = RGBf.(LinRange(0, 1, 1000), 0, 0)
-
-fig, ax, plt = scatter(ones(1000), randn(1000); color = colors)
-Makie.update_state_before_display!(fig)
-original_points = Point2f.(plt.converted[1][])
-pixel_points = Point2f.(Makie.project.((ax.scene.camera,), :data, :pixel, original_points))
-buffer = deepcopy(pixel_points)
+include("reftest_utils.jl")
 
 @testset "SwarmMakie.jl" begin
-    @testset "Algorithms run without error" begin
-        for algorithm in ALL_ALGORITHMS
-            @test_nowarn begin
-                SwarmMakie.calculate!(buffer, algorithm, pixel_points, 10, :left)
-            end
+
+    function test_data()
+        rng = StableRNGs.StableRNG(123)
+        x = [fill(1, 20); fill(2, 30); fill(3, 25)]
+        y = [
+            sort(randn(rng, 20));
+            sort(randn(rng, 30)) .* 1.5 .+ 2;
+            sort(randn(rng, 25)) .* 0.7 .- 2
+        ]
+        return x, y
+    end
+
+    reftest("default") do
+        beeswarm(test_data()...)
+    end
+
+    reftest("default array color") do
+        x, y = test_data()
+        beeswarm(x, y, color = 1:length(x), colormap = :Spectral)
+    end
+
+    reftest("default alpha") do
+        x, y = test_data()
+        beeswarm(x, y, alpha = 0.3)
+    end
+
+    reftest("default direction x") do
+        x, y = test_data()
+        beeswarm(x, y, direction = :x)
+    end
+
+    reftest("default scalar markersize 15") do
+        beeswarm(test_data()..., markersize = 15)
+    end
+
+    reftest("default scalar markersize 12") do
+        beeswarm(test_data()..., markersize = 12)
+    end
+
+    reftest("none") do
+        beeswarm(test_data()...; algorithm = :none)
+    end
+
+    reftest("wilkinson") do
+        beeswarm(test_data()..., algorithm = :wilkinson)
+    end
+
+    reftest("wilkinson array color") do
+        # to see that order is preserved
+        x, y = test_data()
+        beeswarm(x, y, algorithm = :wilkinson, color = 1:length(x), colormap = :Spectral)
+    end
+
+    reftest("wilkinson sides") do
+        x, y = test_data()
+        f, _ = beeswarm(x, y, algorithm = :wilkinson, color = :red, side = :left)
+        beeswarm!(x, y .+ 1, algorithm = :wilkinson, color = :blue, side = :right)
+        f
+    end
+
+    reftest("wilkinson markersize 15") do
+        beeswarm(test_data()..., algorithm = :wilkinson, markersize = 15)
+    end
+
+    reftest("uniform jitter") do
+        beeswarm(test_data()..., algorithm = :uniform, seed = 123)
+    end
+
+    reftest("uniform jitter one group") do
+        _, y = test_data()
+        beeswarm(ones(size(y)), y, algorithm = :uniform, seed = 123)
+    end
+
+    reftest("quasirandom jitter") do
+        beeswarm(test_data()..., algorithm = :quasirandom)
+    end
+
+    reftest("quasirandom jitter direction x") do
+        beeswarm(test_data()..., algorithm = :quasirandom, direction = :x)
+    end
+
+    reftest("pseudorandom jitter") do
+        beeswarm(test_data()..., algorithm = :pseudorandom, seed = 123)
+    end
+
+    function test_data_dodge()
+        _x, _y = test_data()
+        x = repeat(_x, 3)
+        dodge = repeat(1:3, inner = length(_x))
+        y = repeat(_y, 3) .+ dodge
+        return x, y, dodge
+    end
+
+    for alg in [:quasirandom, :wilkinson, :default]
+        reftest("$alg dodge") do
+            x, y, dodge = test_data_dodge()
+            f, _ = beeswarm(
+                x,
+                y;
+                dodge,
+                algorithm = alg,
+                seed = 123,
+                gap = 0.2,
+                color = dodge
+            )
+            barplot!(
+                [1, 1, 1, 2, 2, 2, 3, 3, 3],
+                [1, 2, 3, 2, 3, 4, 3, 4, 5],
+                dodge = [1, 2, 3, 1, 2, 3, 1, 2, 3],
+                alpha = 0.2,
+                color = [1, 2, 3, 1, 2, 3, 1, 2, 3],
+            )
+            f
+        end
+
+        reftest("$alg dodge single-group") do
+            rng = StableRNGs.StableRNG(123)
+            x = ones(Int, 120)
+            y = [randn(rng, 40); randn(rng, 40) .+ 2; randn(rng, 40) .- 2]
+            beeswarm(x, y, dodge = repeat(1:3, inner = 40), algorithm = alg)
         end
     end
-    @testset "Overlaps" begin
-        for algorithm in [SimpleBeeswarm(), SimpleBeeswarm2(), WilkinsonBeeswarm()]
-            # We test how many points are overlapping, proportionately.
-            f, a, p = beeswarm(original_points; alpha = 0.5, algorithm, color = :red)
-            hidedecorations!(a)
-            hidespines!(a)
-            Makie.update_state_before_display!(f)
-            img = Makie.colorbuffer(f.scene; px_per_unit = 1, pt_per_unit = 1, antialias = :none, visible = true, start_renderloop = false)
-            # We have a matrix of all colors in the image.  Now, what we do is the following:
-            # The color white in RGBf is (1, 1, 1).  For a color to be red, the blue and green components
-            # must correspondingly decrease, since the RGBf values cannot exceed 1.
-            # So, we know if a red pixel with alpha=0.5 is rendered, the blue value there will be between 0.6 and 0.4.
-            # If more than one marker is rendered, the red is more intense and the blue value will be even less than 4.
-            nonwhite_pixels = 0
-            overlap_pixels = 0
-            for pixel in img
-                if Colors.blue(pixel) ≤ 0.6f0  && Colors.blue(pixel) >= 0.4f0 # this is a single point rendered
-                    nonwhite_pixels += 1
-                elseif Colors.blue(pixel) < 0.4f0 # this is an overlap
-                    nonwhite_pixels += 1
-                    overlap_pixels += 1
-                end
-            end
-            @test overlap_pixels/nonwhite_pixels < 0.07 # 7% overlap should be our ideal for this sort of data - this is totally arbitrary.
-        end
+
+    reftest("AoG basic") do
+        x, y = test_data()
+        spec = AoG.mapping(x, y, color = x => AoG.nonnumeric) * AoG.visual(Beeswarm)
+        AoG.draw(spec)
     end
-    @testset "Gutters" begin
-        # First, we test the regular gutter with multiple categories.
-        f, a, p = beeswarm(rand(1:3, 300), randn(300); color = rand(RGBAf, 300), markersize = 20, algorithm = SimpleBeeswarm2())
-        Makie.update_state_before_display!(f)        
-        @test_warn "Gutter threshold exceeded" p.gutter = 0.2
-        # Next, we test it in direction y
-        f, a, p = beeswarm(rand(1:3, 300), randn(300); direction = :x, color = rand(RGBAf, 300), markersize = 20, algorithm = SimpleBeeswarm2())        
-        Makie.update_state_before_display!(f)
-        @test_warn "Gutter threshold exceeded" p.gutter = 0.2
-        # and it shouldn't warn if, when using a lower markersize, the gutter is not reached.
-        f, a, p = beeswarm(rand(1:3, 300), randn(300); direction = :y, color = rand(RGBAf, 300), markersize = 9, algorithm = SimpleBeeswarm2())      
-        Makie.update_state_before_display!(f)
-        @test_nowarn p.gutter = 0.5
+
+    reftest("AoG direction x") do
+        x, y = test_data()
+        spec = AoG.mapping(x, y, color = x => AoG.nonnumeric) *
+            AoG.visual(Beeswarm, algorithm = :quasirandom, direction = :x)
+        AoG.draw(spec)
     end
-    @testset "Vector markersizes" begin
-        # First, we test the regular gutter with multiple categories.
-        xs = rand(1:3, 300)
-        for algorithm in ALL_ALGORITHMS
-            f, a, p = beeswarm(xs, randn(300); color = rand(RGBAf, 300), markersize = xs*2, algorithm)
-            Makie.update_state_before_display!(f)
-        end
+
+    reftest("AoG dodge") do
+        x, y, dodge = test_data_dodge()
+        spec = AoG.mapping(x, y, color = x, dodge = dodge => AoG.nonnumeric) *
+            AoG.visual(Beeswarm, algorithm = :quasirandom)
+        AoG.draw(spec)
     end
 end
-
-# TODO: 
-# - Test that the order of points is preserved
-# How to do this?  Test y values for SimpleBeeswarm and use StatsBase.histogram to test WilkinsonBeeswarm.  Jitter should just make sure y coordinates are preserved.
