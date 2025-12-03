@@ -17,7 +17,7 @@ AlgebraOfGraphics = "cbdf2221-f076-402e-a563-3d30da359d67"
 AlgebraOfGraphicsExt = "AlgebraOfGraphics"
 
 [compat]
-AlgebraOfGraphics = "0.11"
+AlgebraOfGraphics = "0.11, 0.12"
 KernelDensity = "0.6"
 Makie = "0.24"
 StableRNGs = "1"
