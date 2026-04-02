@@ -106,7 +106,7 @@ function Makie.data_limits(bs::Beeswarm)
         # mindiff = if isnothing(bs.gutter[])
         #     minimum(diff(categories))
         # else
-        #     bs.gutter[]  
+        #     bs.gutter[]
         # end
         mindiff = minimum(diff(categories))
         (first(categories) - mindiff/2, last(categories) + mindiff/2)
@@ -134,7 +134,7 @@ end
 function compute_x_and_width(x, width, gap, dodge, n_dodge, dodge_gap)
     width === Makie.automatic && (width = 1)
     width *= 1 - gap
-    
+
     if dodge === Makie.automatic
         i_dodge = 1
     elseif eltype(dodge) <: Integer
@@ -142,12 +142,12 @@ function compute_x_and_width(x, width, gap, dodge, n_dodge, dodge_gap)
     else
         ArgumentError("The keyword argument `dodge` currently supports only `AbstractVector{<: Integer}`") |> throw
     end
-    
+
     n_dodge === Makie.automatic && (n_dodge = maximum(i_dodge))
-    
+
     dodge_width = scale_width(dodge_gap, n_dodge)
     shifts = shift_dodge.(i_dodge, dodge_width, dodge_gap)
-    
+
     return x .+ width .* shifts, width * dodge_width
 end
 
@@ -162,8 +162,9 @@ function Makie.plot!(plot::Beeswarm)
             return converted
         end
     end
-    
-    Makie.register_projected_positions!(plot, Point2f; input_name = :flipped_for_projection, output_name = :projected_points, output_space = :pixel, input_space = :data)
+
+    # Using :input_space=:space supports axis transformations (e.g., issue #39)
+    Makie.register_projected_positions!(plot, Point2f; input_name = :flipped_for_projection, output_name = :projected_points, output_space = :pixel, input_space = :space)
 
     buffer = Point2f[]
 
@@ -192,7 +193,7 @@ function Makie.plot!(plot::Beeswarm)
         end
 
         _output_space = output_space(alg_obj)
-        
+
         # Work in the appropriate space for this algorithm
         # For direction :x, we need to flip back for the algorithm (it expects categories on x)
         # For pixel space, use projected points (which may be flipped for projection)
@@ -203,10 +204,10 @@ function Makie.plot!(plot::Beeswarm)
         else
             positions = _output_space === :pixel ? projected : converted_1
         end
-        
+
         xs = first.(positions)
         ys = last.(positions)
-        
+
         # Calculate base width
         _width::Float64 = if width === Makie.automatic
             uxs = unique(xs)
@@ -226,7 +227,7 @@ function Makie.plot!(plot::Beeswarm)
         else
             width
         end
-        
+
         # Apply dodge if needed
         if dodge === Makie.automatic
             xs_final = xs
@@ -236,23 +237,23 @@ function Makie.plot!(plot::Beeswarm)
             xs_final = xs_dodged
             final_width = width_dodged
         end
-        
+
         # Reconstruct positions with final x-coordinates
         positions_final = Point2.(xs_final, ys)
-        
+
         # Compute bin edges for each unique x position
         unique_xs_final = unique(xs_final)
-        
+
         # Create a mapping from x values to bin edges
         x_to_edges = Dict{Float64, Tuple{Float64, Float64}}()
         for x in unique_xs_final
             half_width = final_width / 2
             x_to_edges[Float64(x)] = (Float64(x - half_width), Float64(x + half_width))
         end
-        
+
         # Create bin_edges array matching the order of positions
         bin_edges = [x_to_edges[Float64(x)] for x in xs_final]
-        
+
         calculate!(
             buffer,
             alg_obj,
@@ -295,7 +296,7 @@ function gutterize!(point_buffer, algorithm::BeeswarmAlgorithm, positions, direc
     # by finding the unique x values
     idx = 1
     for group in unique(xs)
-        
+
         # Starting index for the group
         group_indices = findall(==(group), xs)
 
@@ -321,9 +322,9 @@ function gutterize!(point_buffer, algorithm::BeeswarmAlgorithm, positions, direc
         # Emit warning if too many points fall into the gutter
         if gutter_threshold_count < gutter_pts
             @warn """
-            Gutter threshold exceeded for category $(group).  
+            Gutter threshold exceeded for category $(group).
             $(round(gutter_pts/length(group_indices), digits = 2))% of points were placed in the gutter.
-            Consider adjusting the `markersize` for the plot to shrink markers, or the gutter size by `gutter`. 
+            Consider adjusting the `markersize` for the plot to shrink markers, or the gutter size by `gutter`.
             """
         end
     end
