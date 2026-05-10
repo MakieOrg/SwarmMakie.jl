@@ -132,6 +132,24 @@ include("reftest_utils.jl")
         end
     end
 
+    reftest("log scale y") do
+        rng = StableRNGs.StableRNG(123)
+        x = [fill(1, 50); fill(2, 50)]
+        y = exp.(randn(rng, 100))  # lognormal, suitable for log scale
+        fig = Figure()
+        beeswarm!(Axis(fig[1,1]; yscale=log10), x, y)
+        fig
+    end
+
+    reftest("log scale xy") do
+        rng = StableRNGs.StableRNG(123)
+        x = [fill(1, 50); fill(2, 50)]
+        y = exp.(randn(rng, 100))
+        fig = Figure()
+        beeswarm!(Axis(fig[1,1]; xscale=log10, yscale=log10), x, y)
+        fig
+    end
+
     reftest("AoG basic") do
         x, y = test_data()
         spec = AoG.mapping(x, y, color = x => AoG.nonnumeric) * AoG.visual(Beeswarm)
